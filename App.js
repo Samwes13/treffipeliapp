@@ -1,52 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-
-
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import EnterUsername from './components/EnterUsername';  
+import GameOptionScreen from './components/GameOptionScreen';  
+import GameLobby from './components/GameLobby';
+import JoinGame from './components/JoinGame';
 
 export default function App() {
-  const [username, setUsername] = useState('');
-
-  const handleInputChanges = (text) => {
-    setUsername(text);
-  };
-
-  const handleSubmit = () => {
-    console.log('Username entered:' , username);
-  };
+  
+  const Stack = createNativeStackNavigator();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Treffipeli</Text>
-      <Text style={styles.title}> Enter username</Text>
-      <TextInput
-        style={styles.input}
-        placeholder='Enter your username'
-        value={username}
-        onChangeText={handleInputChanges}
-      />
-      <Button title="submit" onPress={handleSubmit}/>
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="EnterUsername">
+        <Stack.Screen name="EnterUsername" component={EnterUsername} options={{ headerShown: false }} />
+        <Stack.Screen name="GameOptionScreen" component={GameOptionScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="GameLobby" component={GameLobby} options={{ headerShown: false }} />
+        <Stack.Screen name="JoinGame" component={JoinGame} options={{ headerShown: false }} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  input: {
-    width: '80%',
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-});
