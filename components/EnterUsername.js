@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button } from 'react-native';
-import styles from '../styles'; // Varmista, että polku on oikein
+import { View, Text, TextInput, Button, Alert } from 'react-native';
+import styles from '../styles'; 
+import { ref, push } from 'firebase/database';
+import { database } from '../firebaseConfig';
 
 export default function EnterUsername({ navigation }) {
   const [username, setUsername] = useState('');
@@ -9,11 +11,19 @@ export default function EnterUsername({ navigation }) {
     setUsername(text);
   };
 
+  const saveUsername = (username) => {
+    push(ref(database, 'users/'), { username });
+  };
+
   const handleSubmit = () => {
     if (username.trim()) {
-      navigation.navigate('GameOptionScreen');
+      saveUsername(username);
+      navigation.navigate('GameOptionScreen', { username });  // Navigoi CardTraits-sivulle
+    } else {
+      Alert.alert('Error', 'Please enter a username');
     }
   };
+  
 
   return (
     <View style={styles.container}>

@@ -2,6 +2,16 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   // Yleiset tyylit
+  usernameContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  usernameText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
   container: {
     flex: 1,
     justifyContent: 'center',

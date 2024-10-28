@@ -1,19 +1,31 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert } from 'react-native';
-import styles from '../styles'; // Varmista, että polku on oikein
+import { ref, get, set } from 'firebase/database'; // Hae tietoa Firebase-tietokannasta
+import { database } from '../firebaseConfig'; // Ota tietokanta käyttöön
+import styles from '../styles';
 
-// Esimerkki lobbyn pinkoodista (tätä voidaan myöhemmin päivittää dynaamisesti)
-const existingPincode = 'ABC123';
-
-export default function JoinGame({ navigation }) {
+export default function JoinGame({ navigation, route }) {
+  const { username } = route.params; // Ota käyttäjänimi vastaan reitiltä
   const [pincode, setPincode] = useState('');
 
-  const handleJoinGame = () => {
-    if (pincode === existingPincode) {
-      // Siirry GameLobby-sivulle, jos pinkoodi on oikein
-      navigation.navigate('GameLobby', { pincode });
+  const handleJoinGame = async () => {
+    // Hae pelin tiedot Firebase-tietokannasta pelikoodin avulla
+    const gameRef = ref(database, `games/${pincode}`);
+    const snapshot = await get(gameRef);
+
+    if (snapshot.exists()) {
+      // Lisää pelaaja Firebase-tietokantaan
+      const playersRef = ref(database, `games/${pincode}/players/${username}`);
+      await set(playersRef, {
+        username: username,
+        traits: [],
+        isHost: false, // Tämä pelaaja ei ole isäntä
+      });
+
+      // Siirry CardTraits-sivulle, jos pinkoodi on oikein
+      navigation.navigate('CardTraits', { username, gamepin: pincode }); // Välitä oikea käyttäjänimi
     } else {
-      // Näytä virheilmoitus, jos pinkoodi on väärin
+      // Näytä virheilmoitus, jos pelikoodi on väärin
       Alert.alert('Error', 'Pincode is wrong, try again.');
     }
   };
