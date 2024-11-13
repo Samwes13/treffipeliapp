@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, Text, FlatList } from 'react-native';
-import { ref, onValue, update } from 'firebase/database'; // Firebase-tietokannan kuuntelu ja päivitys
+import { ref, onValue, update } from 'firebase/database'; 
 import { database } from '../firebaseConfig';
 import styles from '../styles';
 
@@ -37,7 +37,7 @@ export default function GameLobby({ route, navigation }) {
     return () => unsubscribe(); // Pysäytetään kuuntelu, kun komponentti poistetaan
   }, [gamepin, username]);
 
-  // Jos peli on alkanut, siirrytään GamePlay-sivulle
+  // Jos peli on alkanut, siirrytään GamePlay-sivulle----
   useEffect(() => {
     if (isGameStarted) {
       navigation.navigate('GamePlay', { username, gamepin }); // Siirrä username ja gamepin

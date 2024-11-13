@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert } from 'react-native';
 import { ref, update } from 'firebase/database';
-import { database } from '../firebaseConfig'; // Ota tietokanta käyttöön
+import { database } from '../firebaseConfig'; 
 import styles from '../styles';
 
 export default function CardTraits({ route, navigation }) {
-  const { username, gamepin } = route.params; // Varmista, että username on saatavilla
+  const { username, gamepin } = route.params; 
   const [traits, setTraits] = useState(Array(6).fill('')); // Alusta 6 piirrettä
 
   const handleInputChange = (text, index) => {
