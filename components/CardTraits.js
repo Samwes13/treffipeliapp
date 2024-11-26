@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert } from 'react-native';
-import { ref, update } from 'firebase/database';
+import { ref, update, get } from 'firebase/database';
 import { database } from '../firebaseConfig'; 
 import styles from '../styles';
 
@@ -14,19 +14,30 @@ export default function CardTraits({ route, navigation }) {
     setTraits(newTraits);
   };
 
-  const saveTraits = () => {
+  const saveTraits = async () => {
     if (traits.every((trait) => trait.trim() !== '')) {
-      // Tallenna piirteet tietokantaan
-      update(ref(database, `games/${gamepin}/players/${username}`), {
-        traits: traits,
-      });
-
-      // Navigoi GameLobbyyn, kun piirteet on tallennettu
-      navigation.navigate('GameLobby', { gamepin, username });
+      try {
+        const gameRef = ref(database, `games/${gamepin}`);
+        const snapshot = await get(gameRef);
+  
+        if (snapshot.exists()) {
+          const gameData = snapshot.val();
+          const updatedTraits = [...(gameData.traits || []), ...traits];
+  
+          await update(gameRef, { traits: updatedTraits });
+          navigation.navigate('GameLobby', { gamepin, username }); // Lisää username
+        } else {
+          Alert.alert('Error', 'Game not found');
+        }
+      } catch (error) {
+        console.error('Error saving traits:', error);
+        Alert.alert('Error', 'Failed to save traits. Please try again.');
+      }
     } else {
       Alert.alert('Error', 'Please fill all traits');
     }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -40,6 +51,7 @@ export default function CardTraits({ route, navigation }) {
           onChangeText={(text) => handleInputChange(text, index)}
         />
       ))}
+
       <Button title="Submit" onPress={saveTraits} />
     </View>
   );

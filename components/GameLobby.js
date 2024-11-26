@@ -5,53 +5,65 @@ import { database } from '../firebaseConfig';
 import styles from '../styles';
 
 export default function GameLobby({ route, navigation }) {
-  const { username, gamepin } = route.params; // Nämä tulevat GameOptionsScreen-komponentista
+  const { username, gamepin } = route.params;
   const [players, setPlayers] = useState([]);
   const [isHost, setIsHost] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
+
+  // Shuffle function for traits
+  const shuffleTraits = (traits) => {
+    for (let i = traits.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [traits[i], traits[j]] = [traits[j], traits[i]]; // Swap elements
+    }
+    return traits;
+  };
 
   // Kuuntele pelin tietoja Firebase-tietokannassa
   useEffect(() => {
     const gameRef = ref(database, `games/${gamepin}`);
 
-    // Kuunnellaan tietokannan muutoksia
     const unsubscribe = onValue(gameRef, (snapshot) => {
       const gameData = snapshot.val();
 
       if (gameData) {
-        // Päivitä pelaajien lista
         setPlayers(Object.values(gameData.players || {}));
 
-        // Päivitä isäntätila
         if (gameData.players[username]?.isHost) {
           setIsHost(true);
         }
 
-        // Tarkista, onko peli aloitettu
         if (gameData.isGameStarted) {
           setIsGameStarted(true);
+        }
+
+        // If a new player joins, shuffle traits
+        if (gameData.players && Object.keys(gameData.players).length > players.length) {
+          const shuffledTraits = shuffleTraits(gameData.traits || []);
+          update(gameRef, { traits: shuffledTraits });
         }
       }
     });
 
     return () => unsubscribe(); // Pysäytetään kuuntelu, kun komponentti poistetaan
-  }, [gamepin, username]);
+  }, [gamepin, username, players.length]);
 
-  // Jos peli on alkanut, siirrytään GamePlay-sivulle----
+  // Jos peli on alkanut, siirrytään GamePlay-sivulle
   useEffect(() => {
     if (isGameStarted) {
-      navigation.navigate('GamePlay', { username, gamepin }); // Siirrä username ja gamepin
+      navigation.navigate('GamePlay', { username, gamepin });
     }
   }, [isGameStarted, navigation, gamepin, username]);
 
-  // Aloita peli (vain isännälle)
   const startGame = () => {
     if (isHost) {
+      console.log('Starting game for gamepin:', gamepin); // Debug
       update(ref(database, `games/${gamepin}`), {
-        isGameStarted: true, // Päivitä pelin tila alkaneeksi
+        isGameStarted: true,
       });
     }
   };
+  
 
   return (
     <View style={styles.container}>

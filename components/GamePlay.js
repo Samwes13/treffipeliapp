@@ -18,173 +18,187 @@ export default function GamePlay({ route, navigation }) {
 
   const [players, setPlayers] = useState([]);
   const [traits, setTraits] = useState([]);
-  const [usedTraits, setUsedTraits] = useState([]); // Uusi tila käytetyille traiteille
+  const [usedTraits, setUsedTraits] = useState([]);
+  const [currentTrait, setCurrentTrait] = useState('');
   const [currentRound, setCurrentRound] = useState(1);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [currentTrait, setCurrentTrait] = useState('');
   const [playerAcceptedTraits, setPlayerAcceptedTraits] = useState([]);
-  const [currentPlayerAcceptedTraits, setCurrentPlayerAcceptedTraits] = useState([]);
 
   useEffect(() => {
-    const gameRef = ref(database, `games/${gamepin}/players`);
-  
-    onValue(gameRef, (snapshot) => {
-      const playersData = snapshot.val();
-      const allTraits = [];
-  
-      Object.keys(playersData).forEach((player) => {
-        allTraits.push(...playersData[player].traits);
-      });
-  
-      const shuffledTraits = shuffleArray(allTraits);
-      setTraits(shuffledTraits);
-      setPlayers(Object.keys(playersData));
-  
-      if (!currentTrait && shuffledTraits.length > 0) {
-        setCurrentTrait(shuffledTraits[0]);
-        
-        // Päivitä Firebase:en ensimmäinen trait
-        const gameRef = ref(database, `games/${gamepin}`);
-        update(gameRef, { currentTrait: shuffledTraits[0] });
-
-        // Lisää ensimmäinen trait käytettyihin traiteitten listalle
-        setUsedTraits([shuffledTraits[0]]);
-      }
-  
-      const updatedAcceptedTraits = Object.keys(playersData).reduce((acc, player) => {
-        acc[player] = playersData[player].acceptedTraits || [];
-        return acc;
-      }, {});
-  
-      setPlayerAcceptedTraits(updatedAcceptedTraits[username] || []);
-      setCurrentPlayerAcceptedTraits(updatedAcceptedTraits[players[currentPlayerIndex]] || []);
-    });
-  }, [gamepin]);
-  
-  useEffect(() => {
-    if (players.length > 0) {
-      const currentPlayerName = players[currentPlayerIndex];
-      const playerRef = ref(database, `games/${gamepin}/players/${currentPlayerName}`);
-      
-      onValue(playerRef, (snapshot) => {
-        const playerData = snapshot.val();
-        setCurrentPlayerAcceptedTraits(playerData.acceptedTraits || []);
-      });
-    }
-  }, [currentPlayerIndex, players, gamepin]);
-
-  useEffect(() => {
-    const gameStatusRef = ref(database, `games/${gamepin}`);
-    
-    onValue(gameStatusRef, (snapshot) => {
+    const gameRef = ref(database, `games/${gamepin}`);
+    const unsubscribe = onValue(gameRef, (snapshot) => {
       const gameData = snapshot.val();
       if (gameData) {
+        setTraits(gameData.traits || []);
+        setUsedTraits(gameData.usedTraits || []);
+        setCurrentTrait(gameData.currentTrait || '');
         setCurrentPlayerIndex(gameData.currentPlayerIndex || 0);
         setCurrentRound(gameData.currentRound || 1);
-        setCurrentTrait(gameData.currentTrait || '');
+  
+        const updatedPlayers = Object.keys(gameData.players || {}).map((key) => ({
+          username: key,
+          ...gameData.players[key],
+        }));
+        setPlayers(updatedPlayers);
+  
+        // Tarkista, onko peli päättynyt
+        if (gameData.currentRound > 6) {
+          console.log('Peli päättyi! Siirretään pelaajat GameEnd-sivulle.');
+  
+          // Päivitä pelaajien tila ja siirrä kaikki pelaajat GameEnd-sivulle
+          const playersRef = ref(database, `games/${gamepin}/players`);
+          const playerUpdates = {};
+          updatedPlayers.forEach((player) => {
+            playerUpdates[player.username] = { ...player, inGame: false };
+          });
+  
+          update(playersRef, playerUpdates)
+            .then(() => {
+              navigation.navigate('GameEnd', { gamepin, username });
+            })
+            .catch((error) => console.error('Virhe pelaajien tilan päivittämisessä:', error));
+        }
       }
     });
-  }, [gamepin]);
+  
+    return () => unsubscribe();
+  }, [gamepin, navigation]);
+  
+  
 
-  const shuffleArray = (array) => {
-    return array.sort(() => Math.random() - 0.5);
+  useEffect(() => {
+    const gameRef = ref(database, `games/${gamepin}`);
+
+    if (!currentTrait && traits.length > 0) {
+      console.log("currentTrait puuttuu. Asetetaan ensimmäinen piirre.");
+      const firstTrait = traits[0];
+
+      update(gameRef, {
+        currentTrait: firstTrait,
+        usedTraits: [firstTrait],
+      }).catch((error) => console.error("Virhe ensimmäisen piirteen asettamisessa:", error));
+    }
+  }, [traits, currentTrait, gamepin]);
+
+  
+
+  
+
+
+  const getNextTrait = () => {
+    const availableTraits = traits.filter((trait) => !usedTraits.includes(trait));
+
+    if (availableTraits.length === 0) {
+      console.log("Kaikki piirteet on käytetty.");
+      return null;
+    }
+
+    const nextTrait = availableTraits[0];
+    const gameRef = ref(database, `games/${gamepin}`);
+    update(gameRef, {
+      currentTrait: nextTrait,
+      usedTraits: [...usedTraits, nextTrait],
+    }).catch((error) => console.error("Virhe päivitettäessä piirteitä:", error));
+
+    return nextTrait;
   };
 
   const handleDecision = (decision) => {
-    const playerRef = ref(database, `games/${gamepin}/players/${username}`);
-    let updatedAcceptedTraits = [...playerAcceptedTraits];
-  
-    if (decision === 'juu') {
-      updatedAcceptedTraits.push(currentTrait);
-    } else if (decision === 'ei') {
-      updatedAcceptedTraits = [];
+    if (!currentTrait) {
+      console.error("Virhe: currentTrait on määrittelemätön.");
+      return;
     }
   
+    console.log(`${username} valitsi: ${decision} piirrelle: ${currentTrait}`);
+  
+    const playerRef = ref(database, `games/${gamepin}/players/${username}`);
+    let updatedAcceptedTraits;
+  
+    if (decision === 'juu') {
+      updatedAcceptedTraits = [...playerAcceptedTraits, currentTrait];
+    } else if (decision === 'ei') {
+      updatedAcceptedTraits = []; // Tyhjennetään hyväksytyt piirteet, kun pelaaja valitsee "Ei"
+    }
+  
+    console.log("Updated Accepted Traits: ", updatedAcceptedTraits); // Add this log to check if the traits are being updated correctly
+    
     update(playerRef, { acceptedTraits: updatedAcceptedTraits })
       .then(() => setPlayerAcceptedTraits(updatedAcceptedTraits))
-      .catch(error => console.error("Failed to update accepted traits:", error));
+      .catch((error) => console.error("Virhe hyväksyttyjen piirteiden päivityksessä:", error));
+  
+    const nextTrait = getNextTrait();
+    const nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
+    const nextRound = nextPlayerIndex === 0 ? currentRound + 1 : currentRound;
   
     const gameRef = ref(database, `games/${gamepin}`);
-    const nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
-    const nextRound = (nextPlayerIndex === 0) ? currentRound + 1 : currentRound;
-    
-    // Päivitetään Firebase ja asetaan seuraava trait
-    const nextTrait = getNextTrait();
-    setUsedTraits([...usedTraits, nextTrait]);
-
     update(gameRef, {
       currentPlayerIndex: nextPlayerIndex,
       currentRound: nextRound,
-      currentTrait: nextTrait,
-    });
-  };
+    }).catch((error) => console.error("Virhe pelitilan päivityksessä:", error));
   
-  // Tämä funktio valitsee seuraavan traitin, jota ei ole vielä käytetty
-  const getNextTrait = () => {
-    return traits.find((trait) => !usedTraits.includes(trait)) || '';
-  };
-
-  const refreshGame = async () => {
-    const gameRef = ref(database, `games/${gamepin}`);
+    // Tarkistetaan, onko peli pelattu loppuun (6 kierrosta)
+    if (nextRound > 6) {
+      console.log("Peli päättyi! Siirretään kaikki pelaajat GameEnd-sivulle.");
     
-    try {
-      await update(gameRef, {
-        currentRound: 1,
-        currentPlayerIndex: 0,
-        currentTrait: traits[0] || '',
+      const playersRef = ref(database, `games/${gamepin}/players`);
+      const playerUpdates = {};
+    
+      players.forEach((player) => {
+        playerUpdates[player.username] = { ...player, inGame: false }; // Merkitään pelaajat pelin loppuneiksi
       });
     
-      for (let player of players) {
-        const playerRef = ref(database, `games/${gamepin}/players/${player}`);
-        await update(playerRef, {
-          acceptedTraits: [],
-          decision: null,
-        });
-      }
-    
-      setCurrentRound(1);
-      setCurrentPlayerIndex(0);
-      setTraits(shuffleArray(traits));
-      setPlayerAcceptedTraits([]);
-      setCurrentPlayerAcceptedTraits([]);
-      setCurrentTrait(traits[0] || '');
-      setUsedTraits([]); // Tyhjennä käytetyt traitit pelin päivityksen yhteydessä
-  
-      console.log("Game refreshed successfully.");
-    } catch (error) {
-      console.error("Failed to refresh game:", error);
+      update(playersRef, playerUpdates)
+        .then(() => {
+          navigation.navigate('GameEnd', { gamepin, username }); // Navigointi GameEnd-sivulle
+        })
+        .catch((error) => console.error("Virhe pelaajien päivityksessä:", error));
     }
+    
   };
   
+  
+
+  
+  
+
   return (
     <View style={styles.container}>
       <Text style={styles.roundText}>Round {currentRound}</Text>
       <Text style={styles.traitText}>Current Trait: {currentTrait}</Text>
-      <Text style={styles.playerText}>Current Player: {players[currentPlayerIndex]}</Text>
+      <Text style={styles.playerText}>Current Player: {players[currentPlayerIndex]?.username}</Text>
 
       {players.length > 0 && (
         <>
-          {players[currentPlayerIndex] === username ? (
+          {players[currentPlayerIndex]?.username === username ? (
             <>
               <TouchableOpacity style={styles.button} onPress={() => handleDecision('juu')}>
-                <Text style={styles.buttonText}>Juu</Text>
-              </TouchableOpacity>
+  <Text style={styles.buttonText}>Juu</Text>
+</TouchableOpacity>
 
-              <TouchableOpacity style={styles.button} onPress={() => handleDecision('ei')}>
-                <Text style={styles.buttonText}>Ei</Text>
-              </TouchableOpacity>
+<TouchableOpacity style={styles.button} onPress={() => handleDecision('ei')}>
+  <Text style={styles.buttonText}>Ei</Text>
+</TouchableOpacity>
+
             </>
           ) : (
-            <Text style={styles.playerText}>Waiting for {players[currentPlayerIndex]} to decide...</Text>
+            <Text style={styles.playerText}>
+              Waiting for {players[currentPlayerIndex]?.username} to decide...
+            </Text>
           )}
-
-          <Text style={styles.playerText}>Accepted Traits of Current Player: {currentPlayerAcceptedTraits.join(', ')}</Text>
         </>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={refreshGame}>
-        <Text style={styles.buttonText}>Refresh Game</Text>
-      </TouchableOpacity>
+      {/* Näytä hyväksytyt traitit vain vuorossa olevalle pelaajalle */}
+      <Text style={styles.playerText}>
+        Accepted Traits: 
+        {players[currentPlayerIndex]?.username === username && (
+          <Text>{playerAcceptedTraits.join(', ')}</Text>
+        )}
+        {/* Näytä hyväksytyt traitit pelaajalle, jonka vuoro on */}
+        {players[currentPlayerIndex]?.username !== username && currentPlayerIndex !== -1 && (
+          <Text>{players[currentPlayerIndex]?.acceptedTraits?.join(', ')}</Text>
+        )}
+      </Text>
     </View>
   );
 }

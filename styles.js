@@ -1,72 +1,49 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  // Yleiset tyylit
-  usernameContainer: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
+  gradientBackground: {
+    flex: 1, // Kattaa koko näytön
   },
-  usernameText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#f7f7f7', // Varmistetaan, että komponenttien sisäinen tausta on erillinen
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#FF4081',
+    textShadowColor: '#aaa',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   input: {
     width: '80%',
-    padding: 10,
+    padding: 12,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    borderColor: '#FF4081',
+    borderRadius: 25,
     marginBottom: 20,
-  },
-  helpIcon: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonContainer: {
-    alignItems: 'center',
+    backgroundColor: '#fff',
+    fontSize: 16,
   },
   button: {
-    backgroundColor: '#007bff',
-    paddingVertical: 15,
+    backgroundColor: '#FF4081',
+    paddingVertical: 16,
     paddingHorizontal: 40,
-    borderRadius: 5,
+    borderRadius: 30,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-  },
-  
-  // GameLobbyin tyylit
-  pinkoodi: {
-    fontSize: 18,
-    marginBottom: 20,
-    fontWeight: 'bold',
-  },
-  player: {
-    fontSize: 16,
-    marginVertical: 5,
   },
 });
 
