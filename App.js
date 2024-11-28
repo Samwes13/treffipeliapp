@@ -15,12 +15,7 @@ export default function App() {
   const Stack = createNativeStackNavigator();
 
   return (
-    <LinearGradient
-    colors={['#FF7676', '#FF4081']} // Gradientin värit
-    start={{ x: 0, y: 0 }} // Gradientin alku (vasemmasta yläkulmasta)
-    end={{ x: 1, y: 1 }} // Gradientin loppu (oikeasta alakulmasta)
-    style={styles.gradientBackground}
-    >
+    
       <NavigationContainer>
         <Stack.Navigator initialRouteName="EnterUsername">
           <Stack.Screen name="EnterUsername" component={EnterUsername} options={{ headerShown: false }} /> 
@@ -32,6 +27,6 @@ export default function App() {
           <Stack.Screen name="GameEnd" component={GameEnd} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
-    </LinearGradient>
+    
   );
 }

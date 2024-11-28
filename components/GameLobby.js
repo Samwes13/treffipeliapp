@@ -63,7 +63,6 @@ export default function GameLobby({ route, navigation }) {
       });
     }
   };
-  
 
   return (
     <View style={styles.container}>
@@ -73,7 +72,9 @@ export default function GameLobby({ route, navigation }) {
         data={players}
         keyExtractor={(item) => item.username}
         renderItem={({ item }) => (
-          <Text style={styles.playerText}>{item.username}</Text>
+          <View style={styles.playerItem}>
+            <Text style={styles.playerText}>{item.username}</Text>
+          </View>
         )}
       />
 

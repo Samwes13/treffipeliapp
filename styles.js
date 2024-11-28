@@ -1,50 +1,78 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  gradientBackground: {
-    flex: 1, // Kattaa koko näytön
-  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f7f7', // Varmistetaan, että komponenttien sisäinen tausta on erillinen
+    padding: 20,
+    backgroundColor: '#845AFE',  // Taustaväri kirkas violetti
   },
   title: {
     fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#FF4081',
-    textShadowColor: '#aaa',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+    color: '#ffffff',
   },
-  input: {
-    width: '80%',
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#FF4081',
-    borderRadius: 25,
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    fontSize: 16,
+  playerItem: {
+    backgroundColor: '#ffffff',  // Pelaajan lista tausta
+    borderRadius: 12,
+    marginVertical: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    width: '90%',
+    shadowColor: '#000',  // Varjoefekti
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,  // Android varjoefekti
+  },
+  playerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333333',  // Tumma teksti
+    textAlign: 'center',
   },
   button: {
-    backgroundColor: '#FF4081',
+    backgroundColor: '#FE9091',  // Napin väri vaaleanpunainen
     paddingVertical: 16,
     paddingHorizontal: 40,
-    borderRadius: 30,
-    marginBottom: 20,
-    shadowColor: '#000',
+    borderRadius: 25,
+    marginTop: 20,
+    shadowColor: '#000',  // Varjoefekti napille
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowRadius: 3,
+    elevation: 3,  // Android varjoefekti
   },
   buttonText: {
-    color: '#fff',
+    color: '#fff',  // Valkoinen teksti napissa
     fontSize: 20,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: 20,
+  },
+  yesButton: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 5,
+  },
+  noButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
+
 });
 
 export default styles;

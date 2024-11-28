@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; 
 import { View, TouchableOpacity, Text } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ref, update } from 'firebase/database'; // Firebase-tietokannan kirjoitus
@@ -32,8 +32,8 @@ export default function GameOptionsScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.helpIcon}>
-        <MaterialIcons name="help-outline" size={32} color="black" />
+      <TouchableOpacity style={styles.helpIcon} onPress={() => alert("Help information goes here!")}>
+        <MaterialIcons name="help-outline" size={32} color="#fff" />
       </TouchableOpacity>
 
       <View style={styles.buttonContainer}>

@@ -34,24 +34,20 @@ export default function GamePlay({ route, navigation }) {
         setCurrentTrait(gameData.currentTrait || '');
         setCurrentPlayerIndex(gameData.currentPlayerIndex || 0);
         setCurrentRound(gameData.currentRound || 1);
-  
+
         const updatedPlayers = Object.keys(gameData.players || {}).map((key) => ({
           username: key,
           ...gameData.players[key],
         }));
         setPlayers(updatedPlayers);
-  
-        // Tarkista, onko peli päättynyt
+
         if (gameData.currentRound > 6) {
           console.log('Peli päättyi! Siirretään pelaajat GameEnd-sivulle.');
-  
-          // Päivitä pelaajien tila ja siirrä kaikki pelaajat GameEnd-sivulle
           const playersRef = ref(database, `games/${gamepin}/players`);
           const playerUpdates = {};
           updatedPlayers.forEach((player) => {
             playerUpdates[player.username] = { ...player, inGame: false };
           });
-  
           update(playersRef, playerUpdates)
             .then(() => {
               navigation.navigate('GameEnd', { gamepin, username });
@@ -60,15 +56,12 @@ export default function GamePlay({ route, navigation }) {
         }
       }
     });
-  
+
     return () => unsubscribe();
   }, [gamepin, navigation]);
-  
-  
 
   useEffect(() => {
     const gameRef = ref(database, `games/${gamepin}`);
-
     if (!currentTrait && traits.length > 0) {
       console.log("currentTrait puuttuu. Asetetaan ensimmäinen piirre.");
       const firstTrait = traits[0];
@@ -79,11 +72,6 @@ export default function GamePlay({ route, navigation }) {
       }).catch((error) => console.error("Virhe ensimmäisen piirteen asettamisessa:", error));
     }
   }, [traits, currentTrait, gamepin]);
-
-  
-
-  
-
 
   const getNextTrait = () => {
     const availableTraits = traits.filter((trait) => !usedTraits.includes(trait));
@@ -108,58 +96,51 @@ export default function GamePlay({ route, navigation }) {
       console.error("Virhe: currentTrait on määrittelemätön.");
       return;
     }
-  
+
     console.log(`${username} valitsi: ${decision} piirrelle: ${currentTrait}`);
-  
+
     const playerRef = ref(database, `games/${gamepin}/players/${username}`);
     let updatedAcceptedTraits;
-  
+
     if (decision === 'juu') {
       updatedAcceptedTraits = [...playerAcceptedTraits, currentTrait];
     } else if (decision === 'ei') {
       updatedAcceptedTraits = []; // Tyhjennetään hyväksytyt piirteet, kun pelaaja valitsee "Ei"
     }
-  
-    console.log("Updated Accepted Traits: ", updatedAcceptedTraits); // Add this log to check if the traits are being updated correctly
-    
+
+    console.log("Updated Accepted Traits: ", updatedAcceptedTraits);
+
     update(playerRef, { acceptedTraits: updatedAcceptedTraits })
       .then(() => setPlayerAcceptedTraits(updatedAcceptedTraits))
       .catch((error) => console.error("Virhe hyväksyttyjen piirteiden päivityksessä:", error));
-  
+
     const nextTrait = getNextTrait();
     const nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
     const nextRound = nextPlayerIndex === 0 ? currentRound + 1 : currentRound;
-  
+
     const gameRef = ref(database, `games/${gamepin}`);
     update(gameRef, {
       currentPlayerIndex: nextPlayerIndex,
       currentRound: nextRound,
     }).catch((error) => console.error("Virhe pelitilan päivityksessä:", error));
-  
-    // Tarkistetaan, onko peli pelattu loppuun (6 kierrosta)
+
     if (nextRound > 6) {
       console.log("Peli päättyi! Siirretään kaikki pelaajat GameEnd-sivulle.");
-    
+
       const playersRef = ref(database, `games/${gamepin}/players`);
       const playerUpdates = {};
-    
+
       players.forEach((player) => {
-        playerUpdates[player.username] = { ...player, inGame: false }; // Merkitään pelaajat pelin loppuneiksi
+        playerUpdates[player.username] = { ...player, inGame: false };
       });
-    
+
       update(playersRef, playerUpdates)
         .then(() => {
-          navigation.navigate('GameEnd', { gamepin, username }); // Navigointi GameEnd-sivulle
+          navigation.navigate('GameEnd', { gamepin, username });
         })
         .catch((error) => console.error("Virhe pelaajien päivityksessä:", error));
     }
-    
   };
-  
-  
-
-  
-  
 
   return (
     <View style={styles.container}>
@@ -171,14 +152,24 @@ export default function GamePlay({ route, navigation }) {
         <>
           {players[currentPlayerIndex]?.username === username ? (
             <>
-              <TouchableOpacity style={styles.button} onPress={() => handleDecision('juu')}>
-  <Text style={styles.buttonText}>Juu</Text>
-</TouchableOpacity>
+              {/* Näytä hyväksytyt piirteet ennen nappeja */}
+              <Text style={styles.playerText}>
+                Accepted Traits: 
+                {players[currentPlayerIndex]?.username === username && (
+                  <Text>{playerAcceptedTraits.join(', ')}</Text>
+                )}
+              </Text>
 
-<TouchableOpacity style={styles.button} onPress={() => handleDecision('ei')}>
-  <Text style={styles.buttonText}>Ei</Text>
-</TouchableOpacity>
+              {/* Näytä napit vieretysten */}
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={[styles.button, styles.yesButton]} onPress={() => handleDecision('juu')}>
+                  <Text style={styles.buttonText}>Juu</Text>
+                </TouchableOpacity>
 
+                <TouchableOpacity style={[styles.button, styles.noButton]} onPress={() => handleDecision('ei')}>
+                  <Text style={styles.buttonText}>Ei</Text>
+                </TouchableOpacity>
+              </View>
             </>
           ) : (
             <Text style={styles.playerText}>
@@ -187,18 +178,6 @@ export default function GamePlay({ route, navigation }) {
           )}
         </>
       )}
-
-      {/* Näytä hyväksytyt traitit vain vuorossa olevalle pelaajalle */}
-      <Text style={styles.playerText}>
-        Accepted Traits: 
-        {players[currentPlayerIndex]?.username === username && (
-          <Text>{playerAcceptedTraits.join(', ')}</Text>
-        )}
-        {/* Näytä hyväksytyt traitit pelaajalle, jonka vuoro on */}
-        {players[currentPlayerIndex]?.username !== username && currentPlayerIndex !== -1 && (
-          <Text>{players[currentPlayerIndex]?.acceptedTraits?.join(', ')}</Text>
-        )}
-      </Text>
     </View>
   );
 }

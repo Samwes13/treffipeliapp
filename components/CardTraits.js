@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { ref, update, get } from 'firebase/database';
-import { database } from '../firebaseConfig'; 
+import { database } from '../firebaseConfig';
 import styles from '../styles';
 
 export default function CardTraits({ route, navigation }) {
-  const { username, gamepin } = route.params; 
+  const { username, gamepin } = route.params;
   const [traits, setTraits] = useState(Array(6).fill('')); // Alusta 6 piirrettä
 
   const handleInputChange = (text, index) => {
@@ -37,10 +37,11 @@ export default function CardTraits({ route, navigation }) {
       Alert.alert('Error', 'Please fill all traits');
     }
   };
-  
 
   return (
     <View style={styles.container}>
+      {/* Näytetään pelin gamepin */}
+      <Text style={styles.subtitle}>Game PIN: {gamepin}</Text>
       <Text style={styles.title}>Enter 6 Traits</Text>
       {traits.map((trait, index) => (
         <TextInput
@@ -52,7 +53,9 @@ export default function CardTraits({ route, navigation }) {
         />
       ))}
 
-      <Button title="Submit" onPress={saveTraits} />
+      <TouchableOpacity style={styles.button} onPress={saveTraits}>
+        <Text style={styles.buttonText}>Submit</Text>
+      </TouchableOpacity>
     </View>
   );
 }
