@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { View, Text, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
 import styles from '../styles'; 
 import { ref, push } from 'firebase/database';
 import { database } from '../firebaseConfig';
 
 export default function EnterUsername({ navigation }) {
+  console.log("EnterUsername rendered");
+
   const [username, setUsername] = useState('');
 
   const handleInputChange = (text) => {
@@ -18,23 +20,25 @@ export default function EnterUsername({ navigation }) {
   const handleSubmit = () => {
     if (username.trim()) {
       saveUsername(username);
-      navigation.navigate('GameOptionScreen', { username });  // Navigoi CardTraits-sivulle
+      navigation.navigate('GameOptionScreen', { username }); 
     } else {
       Alert.alert('Error', 'Please enter a username');
     }
   };
-  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Enter username</Text>
       <TextInput
         style={styles.input}
-        placeholder="Enter your username"
+        placeholder="Username"
         value={username}
         onChangeText={handleInputChange}
+        placeholderTextColor="#aaa" // Lisää placeholderin väri
       />
-      <Button title="Submit" onPress={handleSubmit} />
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Enter</Text>
+      </TouchableOpacity>
     </View>
   );
 }
