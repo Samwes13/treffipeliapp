@@ -1,12 +1,14 @@
-import React from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, TouchableOpacity, Text, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ref, update } from 'firebase/database'; // Firebase-tietokannan kirjoitus
 import { database } from '../firebaseConfig'; // Ota tietokanta käyttöön
 import styles from '../styles';
+import GameRules from './GameRules'; // Tuo GameRules-komponentti
 
 export default function GameOptionsScreen({ route, navigation }) {
   const { username } = route.params;
+  const [showRules, setShowRules] = useState(false); // Popupin tila
 
   // Luo uusi peli Firebase-tietokantaan
   const createGame = () => {
@@ -32,9 +34,30 @@ export default function GameOptionsScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.helpIcon}>
+      {/* "?" -ikoni popupin avaamiseen */}
+      <TouchableOpacity style={styles.helpIcon} onPress={() => setShowRules(true)}>
         <MaterialIcons name="help-outline" size={32} color="black" />
       </TouchableOpacity>
+
+      {/* Modal GameRules-komponentille */}
+      <Modal
+        visible={showRules}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowRules(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <GameRules />
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowRules(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={createGame}>
