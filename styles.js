@@ -8,7 +8,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f7f7', // Varmistetaan, että komponenttien sisäinen tausta on erillinen
+    backgroundColor: '#f7f7f7',
+    paddingHorizontal: 20, // Suojaraja vasemmalle ja oikealle
+    paddingVertical: 70,   // Suojaraja ylös ja alas
   },
   title: {
     fontSize: 30,
@@ -18,6 +20,7 @@ const styles = StyleSheet.create({
     textShadowColor: '#aaa',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
+    textAlign: 'center', // Keskittää otsikon
   },
   input: {
     width: '80%',
@@ -45,20 +48,20 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-
   helpIcon: {
     position: 'absolute',
-    top: 20,
-    right: 20,
+    top: '8%',
+    right: '6%',
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 20, // Suojaraja modal-ikkunassa
   },
   modalContent: {
-    width: '80%',
+    width: '90%',
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
@@ -75,9 +78,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  
-
-
 });
 
 export default styles;
