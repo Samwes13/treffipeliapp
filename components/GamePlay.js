@@ -165,23 +165,24 @@ export default function GamePlay({ route, navigation }) {
     <View style={styles.container}>
       <Text style={styles.roundText}>Round {currentRound}</Text>
       <Text style={styles.traitText}>Current Trait: {currentTrait}</Text>
-      <Text style={styles.playerText}>Current Player: {players[currentPlayerIndex]?.username}</Text>
+      <Text style={styles.playerTextPlay}>Current Player: {players[currentPlayerIndex]?.username}</Text>
 
       {players.length > 0 && (
         <>
           {players[currentPlayerIndex]?.username === username ? (
             <>
+            <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.button} onPress={() => handleDecision('juu')}>
-  <Text style={styles.buttonText}>Juu</Text>
-</TouchableOpacity>
+                  <Text style={styles.buttonText}>Juu</Text>
+              </TouchableOpacity>
 
 <TouchableOpacity style={styles.button} onPress={() => handleDecision('ei')}>
   <Text style={styles.buttonText}>Ei</Text>
 </TouchableOpacity>
-
+</View>
             </>
           ) : (
-            <Text style={styles.playerText}>
+            <Text style={styles.playerTextPlay}>
               Waiting for {players[currentPlayerIndex]?.username} to decide...
             </Text>
           )}
@@ -189,7 +190,7 @@ export default function GamePlay({ route, navigation }) {
       )}
 
       {/* Näytä hyväksytyt traitit vain vuorossa olevalle pelaajalle */}
-      <Text style={styles.playerText}>
+      <Text style={styles.playerTextPlay}>
         Accepted Traits: 
         {players[currentPlayerIndex]?.username === username && (
           <Text>{playerAcceptedTraits.join(', ')}</Text>

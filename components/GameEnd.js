@@ -41,7 +41,7 @@ export default function GameEnd({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Game Over</Text>
-      <Text style={styles.subtitle}>Thank you for playing!</Text>
+      <Text style={styles.title}>Thank you for playing!</Text>
       <TouchableOpacity style={styles.button} onPress={handleReplay}>
         <Text style={styles.buttonText}>Replay</Text>
       </TouchableOpacity>

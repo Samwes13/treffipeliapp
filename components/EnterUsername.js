@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Image, Alert, TouchableOpacity } from 'react-native';
 import styles from '../styles'; 
 import { ref, push } from 'firebase/database';
 import { database } from '../firebaseConfig';
@@ -28,6 +28,7 @@ export default function EnterUsername({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <Image source={require('../assets/logoTreffipeli.png')} style={styles.logo} />
       <Text style={styles.title}>Enter username</Text>
       <TextInput
         style={styles.input}

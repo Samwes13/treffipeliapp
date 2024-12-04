@@ -9,6 +9,7 @@ export default function GameLobby({ route, navigation }) {
   const [players, setPlayers] = useState([]);
   const [isHost, setIsHost] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [allPlayersReady, setAllPlayersReady] = useState(false);
 
   // Shuffle function for traits
   const shuffleTraits = (traits) => {
@@ -27,15 +28,23 @@ export default function GameLobby({ route, navigation }) {
       const gameData = snapshot.val();
 
       if (gameData) {
-        setPlayers(Object.values(gameData.players || {}));
+        // Update players list
+        const playerList = Object.values(gameData.players || {});
+        setPlayers(playerList);
 
+        // Check if this user is the host
         if (gameData.players[username]?.isHost) {
           setIsHost(true);
         }
 
+        // Check if game has already started
         if (gameData.isGameStarted) {
           setIsGameStarted(true);
         }
+
+        // Check if all players have completed their traits
+        const allReady = playerList.every(player => player.traitsCompleted);
+        setAllPlayersReady(allReady);
 
         // If a new player joins, shuffle traits
         if (gameData.players && Object.keys(gameData.players).length > players.length) {
@@ -45,18 +54,19 @@ export default function GameLobby({ route, navigation }) {
       }
     });
 
-    return () => unsubscribe(); // Pysäytetään kuuntelu, kun komponentti poistetaan
+    return () => unsubscribe(); // Stop listening when component is unmounted
   }, [gamepin, username, players.length]);
 
-  // Jos peli on alkanut, siirrytään GamePlay-sivulle
+  // If the game has started, navigate to GamePlay screen
   useEffect(() => {
     if (isGameStarted) {
       navigation.navigate('GamePlay', { username, gamepin });
     }
   }, [isGameStarted, navigation, gamepin, username]);
 
+  // Start the game (if the host and all players are ready)
   const startGame = () => {
-    if (isHost) {
+    if (isHost && allPlayersReady) {
       console.log('Starting game for gamepin:', gamepin); // Debug
       update(ref(database, `games/${gamepin}`), {
         isGameStarted: true,
@@ -73,13 +83,19 @@ export default function GameLobby({ route, navigation }) {
         keyExtractor={(item) => item.username}
         renderItem={({ item }) => (
           <View style={styles.playerItem}>
-            <Text style={styles.playerText}>{item.username}</Text>
+            <Text style={styles.playerText}>
+              {item.username} {item.traitsCompleted ? '(Ready)' : '(Not Ready)'}
+            </Text>
           </View>
         )}
       />
 
       {isHost && (
-        <TouchableOpacity style={styles.button} onPress={startGame}>
+        <TouchableOpacity 
+          style={[styles.button, !allPlayersReady && styles.disabledButton]} 
+          onPress={startGame} 
+          disabled={!allPlayersReady}
+        >
           <Text style={styles.buttonText}>Start Game</Text>
         </TouchableOpacity>
       )}

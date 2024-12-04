@@ -36,7 +36,7 @@ export default function GameOptionsScreen({ route, navigation }) {
     <View style={styles.container}>
       {/* "?" -ikoni popupin avaamiseen */}
       <TouchableOpacity style={styles.helpIcon} onPress={() => setShowRules(true)}>
-        <MaterialIcons name="help-outline" size={32} color="black" />
+        <MaterialIcons name="help-outline" size={50} color="white" />
       </TouchableOpacity>
 
       {/* Modal GameRules-komponentille */}
@@ -59,7 +59,7 @@ export default function GameOptionsScreen({ route, navigation }) {
         </View>
       </Modal>
 
-      <View style={styles.buttonContainer}>
+      <View >
         <TouchableOpacity style={styles.button} onPress={createGame}>
           <Text style={styles.buttonText}>Create Game</Text>
         </TouchableOpacity>

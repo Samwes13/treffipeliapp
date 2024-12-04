@@ -6,7 +6,7 @@ import styles from '../styles';
 
 export default function CardTraits({ route, navigation }) {
   const { username, gamepin } = route.params;
-  const [traits, setTraits] = useState(Array(6).fill('')); // Alusta 6 piirrettä
+  const [traits, setTraits] = useState(Array(6).fill('')); // Initialize 6 traits
 
   const handleInputChange = (text, index) => {
     const newTraits = [...traits];
@@ -24,8 +24,16 @@ export default function CardTraits({ route, navigation }) {
           const gameData = snapshot.val();
           const updatedTraits = [...(gameData.traits || []), ...traits];
   
+          // Update the traits in Firebase
           await update(gameRef, { traits: updatedTraits });
-          navigation.navigate('GameLobby', { gamepin, username }); // Lisää username
+
+          // Mark this player as having completed their traits
+          await update(ref(database, `games/${gamepin}/players/${username}`), {
+            traitsCompleted: true, // Set traitsCompleted to true for this player
+          });
+
+          // Navigate to GameLobby page
+          navigation.navigate('GameLobby', { gamepin, username });
         } else {
           Alert.alert('Error', 'Game not found');
         }
@@ -40,8 +48,7 @@ export default function CardTraits({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Näytetään pelin gamepin */}
-      <Text style={styles.subtitle}>Game PIN: {gamepin}</Text>
+      <Text style={styles.subtitle}>PIN: {gamepin}</Text>
       <Text style={styles.title}>Enter 6 Traits</Text>
       {traits.map((trait, index) => (
         <TextInput

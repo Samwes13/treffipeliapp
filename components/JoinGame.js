@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { ref, get, set } from 'firebase/database'; // Hae tietoa Firebase-tietokannasta
 import { database } from '../firebaseConfig'; // Ota tietokanta käyttöön
 import styles from '../styles';
@@ -39,7 +39,10 @@ export default function JoinGame({ navigation, route }) {
         value={pincode}
         onChangeText={setPincode}
       />
-      <Button title="Join Game" onPress={handleJoinGame} />
+      <TouchableOpacity style={styles.button} onPress={handleJoinGame}>
+        <Text style={styles.buttonText}>Join Game</Text>
+      </TouchableOpacity>
+      
     </View>
   );
 }
