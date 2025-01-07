@@ -21,7 +21,7 @@
       }
     },
     "web": {
-      "output": "static",
+      "output": "web-build",
       "bundler": "metro"
     },
     "plugins": [
