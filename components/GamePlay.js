@@ -164,8 +164,10 @@ export default function GamePlay({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.roundText}>Round {currentRound}</Text>
-      <Text style={styles.traitText}>Current Trait: {currentTrait}</Text>
-      <Text style={styles.playerTextPlay}>Current Player: {players[currentPlayerIndex]?.username}</Text>
+      <Text style={styles.playerTextPlay}>Player: {players[currentPlayerIndex]?.username}</Text>
+      <Text style={styles.newtraitText}> New trait:</Text>
+      <Text style={styles.traitText}> {currentTrait}</Text>
+      
 
       {players.length > 0 && (
         <>
@@ -173,13 +175,13 @@ export default function GamePlay({ route, navigation }) {
             <>
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.button} onPress={() => handleDecision('juu')}>
-                  <Text style={styles.buttonText}>Juu</Text>
+                  <Text style={styles.buttonText}>Yes</Text>
               </TouchableOpacity>
 
-<TouchableOpacity style={styles.button} onPress={() => handleDecision('ei')}>
-  <Text style={styles.buttonText}>Ei</Text>
-</TouchableOpacity>
-</View>
+          <TouchableOpacity style={styles.button} onPress={() => handleDecision('ei')}>
+            <Text style={styles.buttonText}>No</Text>
+          </TouchableOpacity>
+          </View>
             </>
           ) : (
             <Text style={styles.playerTextPlay}>
@@ -190,16 +192,27 @@ export default function GamePlay({ route, navigation }) {
       )}
 
       {/* Näytä hyväksytyt traitit vain vuorossa olevalle pelaajalle */}
-      <Text style={styles.playerTextPlay}>
-        Accepted Traits: 
-        {players[currentPlayerIndex]?.username === username && (
-          <Text>{playerAcceptedTraits.join(', ')}</Text>
-        )}
-        {/* Näytä hyväksytyt traitit pelaajalle, jonka vuoro on */}
-        {players[currentPlayerIndex]?.username !== username && currentPlayerIndex !== -1 && (
-          <Text>{players[currentPlayerIndex]?.acceptedTraits?.join(', ')}</Text>
-        )}
+      <Text style={styles.playerAcceptedTraitset}>
+        Accepted Traits:
       </Text>
+
+      {players[currentPlayerIndex]?.username === username && (
+        playerAcceptedTraits.map((trait, index) => (
+          <Text key={index} style={styles.playerAcceptedTraitset}>
+            {index + 1}. {trait}
+          </Text>
+        ))
+      )}
+
+      {players[currentPlayerIndex]?.username !== username && currentPlayerIndex !== -1 && (
+        players[currentPlayerIndex]?.acceptedTraits?.map((trait, index) => (
+          <Text key={index} style={styles.playerAcceptedTraitset}>
+            {index + 1}. {trait}
+          </Text>
+        ))
+      )}
+
+
     </View>
   );
 }

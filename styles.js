@@ -132,16 +132,40 @@ const styles = StyleSheet.create({
   },
   traitText: {
     fontWeight: 'bold',
-    fontSize: 29,
-    color: '#FFD700',
+    fontSize: 32,
+    color: '#FE9091',
     marginBottom: 15,
+
     textAlign: 'center',
+    backgroundColor: '#FFFFFF', // Taustaväri
+    padding: 19,                // Sisennys laatikon sisällä
+    borderRadius: 14,
   },
+
+  newtraitText: {
+    fontWeight: 'bold',
+    fontSize: 32,
+    color: '#FFFFFF',
+    marginBottom: 15,
+
+    textAlign: 'center',
+
+  },
+
   playerTextPlay: {
     fontSize: 18,
     color: '#FFFFFF',
     marginVertical: 5,
     textAlign: 'center',
+    marginBottom: 15,
+  },
+  
+
+  playerAcceptedTraitset: {
+    color: '#FFFFFF',         // Tekstin jakaminen riveille
+    fontSize: 18,             // Määrittää, että tekstin leveys voi käyttää koko tilan
+    textAlign: 'centered',         // Tekstin tasaus vasemmalle (voi olla myös 'center' tai 'right')
+    marginVertical: 5,
   },
 
   buttonContainer: {
