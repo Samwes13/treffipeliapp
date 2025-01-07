@@ -22,7 +22,8 @@
     "react-native-screens": "^3.31.1",
     "react-dom": "18.2.0",
     "react-native-web": "~0.19.10",
-    "@expo/metro-runtime": "~3.2.3"
+    "@expo/metro-runtime": "~3.2.3",
+    "expo-router": "~3.5.24"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

@@ -21,8 +21,11 @@
       }
     },
     "web": {
-      "output": "server",
+      "output": "static",
       "bundler": "metro"
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
