@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { ref, get, set } from 'firebase/database'; // Hae tietoa Firebase-tietokannasta
 import { database } from '../firebaseConfig'; // Ota tietokanta käyttöön
 import styles from '../styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function JoinGame({ navigation, route }) {
   const { username } = route.params; // Ota käyttäjänimi vastaan reitiltä
@@ -32,6 +33,13 @@ export default function JoinGame({ navigation, route }) {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={['#906AFE', 'transparent']}
+        style={[styles.background, { zIndex: -1 }]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
       <Text style={styles.title}>Join Game</Text>
       <TextInput
         style={styles.input}

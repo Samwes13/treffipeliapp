@@ -1,16 +1,22 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  gradientBackground: {
-    flex: 1, // Kattaa koko näytön
-  },
+  
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#845AFE',
+    backgroundColor: '#FF9090',
     paddingHorizontal: 20, // Suojaraja vasemmalle ja oikealle
     paddingVertical: 70,   // Suojaraja ylös ja alas
+  },
+
+  background: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: '100%',
   },
 
   subtitle: {

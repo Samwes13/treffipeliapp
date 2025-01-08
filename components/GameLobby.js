@@ -3,6 +3,7 @@ import { View, TouchableOpacity, Text, FlatList } from 'react-native';
 import { ref, onValue, update } from 'firebase/database'; 
 import { database } from '../firebaseConfig';
 import styles from '../styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function GameLobby({ route, navigation }) {
   const { username, gamepin } = route.params;
@@ -76,6 +77,15 @@ export default function GameLobby({ route, navigation }) {
 
   return (
     <View style={styles.container}>
+      
+      <LinearGradient
+        // Background Linear Gradient
+        colors={['#906AFE', 'transparent']}
+        style={[styles.background, { zIndex: -1 }]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+
       <Text style={styles.title}>Game Lobby - {gamepin}</Text>
 
       <FlatList

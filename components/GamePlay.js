@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { ref, onValue, update } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import styles from '../styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function GamePlay({ route, navigation }) {
   const { gamepin, username } = route.params;
@@ -163,6 +164,13 @@ export default function GamePlay({ route, navigation }) {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={['#906AFE', 'transparent']}
+        style={[styles.background, { zIndex: -1 }]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
       <Text style={styles.roundText}>Round {currentRound}</Text>
       <Text style={styles.playerTextPlay}>Player: {players[currentPlayerIndex]?.username}</Text>
       <Text style={styles.newtraitText}> New trait:</Text>

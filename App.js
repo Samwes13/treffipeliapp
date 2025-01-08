@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import styles from './styles'; // Oletetaan, että style.js sijaitsee samassa hakemistossa
 import EnterUsername from './components/EnterUsername';  
 import CardTraits from './components/CardTraits';
@@ -11,11 +11,13 @@ import JoinGame from './components/JoinGame';
 import GamePlay from './components/GamePlay';
 import GameEnd from './components/GameEnd';
 
+
 export default function App() {
   const Stack = createNativeStackNavigator();
 
   return (
     
+
       <NavigationContainer>
         <Stack.Navigator initialRouteName="EnterUsername">
           <Stack.Screen name="EnterUsername" component={EnterUsername} options={{ headerShown: false }} /> 
@@ -25,8 +27,10 @@ export default function App() {
           <Stack.Screen name="CardTraits" component={CardTraits} options={{ headerShown: false }} />
           <Stack.Screen name="GamePlay" component={GamePlay} options={{ headerShown: false }} />
           <Stack.Screen name="GameEnd" component={GameEnd} options={{ headerShown: false }} />
+          
         </Stack.Navigator>
       </NavigationContainer>
+      
     
   );
 }

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { ref, update, get, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import styles from '../styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function GameEnd({ route, navigation }) {
   const { gamepin, username } = route.params || {};
@@ -40,6 +41,13 @@ export default function GameEnd({ route, navigation }) {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={['#906AFE', 'transparent']}
+        style={[styles.background, { zIndex: -1 }]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
       <Text style={styles.title}>Game Over</Text>
       <Text style={styles.title}>Thank you for playing!</Text>
       <TouchableOpacity style={styles.button} onPress={handleReplay}>

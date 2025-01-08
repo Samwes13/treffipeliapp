@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { ref, update, get } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import styles from '../styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function CardTraits({ route, navigation }) {
   const { username, gamepin } = route.params;
@@ -48,6 +49,13 @@ export default function CardTraits({ route, navigation }) {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={['#906AFE', 'transparent']}
+        style={[styles.background, { zIndex: -1 }]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
       <Text style={styles.subtitle}>PIN: {gamepin}</Text>
       <Text style={styles.title}>Enter 6 Traits</Text>
       {traits.map((trait, index) => (

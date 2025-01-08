@@ -3,6 +3,7 @@ import { View, Text, TextInput, Image, Alert, TouchableOpacity } from 'react-nat
 import styles from '../styles'; 
 import { ref, push } from 'firebase/database';
 import { database } from '../firebaseConfig';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function EnterUsername({ navigation }) {
   console.log("EnterUsername rendered");
@@ -28,6 +29,13 @@ export default function EnterUsername({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={['#906AFE', 'transparent']}
+        style={[styles.background, { zIndex: -1 }]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
       <Image source={require('../assets/logoTreffipeli.png')} style={styles.logo} />
       <Text style={styles.title}>Enter username</Text>
       <TextInput

@@ -5,6 +5,7 @@ import { ref, update } from 'firebase/database'; // Firebase-tietokannan kirjoit
 import { database } from '../firebaseConfig'; // Ota tietokanta käyttöön
 import styles from '../styles';
 import GameRules from './GameRules'; // Tuo GameRules-komponentti
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function GameOptionsScreen({ route, navigation }) {
   const { username } = route.params;
@@ -34,6 +35,14 @@ export default function GameOptionsScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={['#906AFE', 'transparent']}
+        style={[styles.background, { zIndex: -1 }]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+
       {/* "?" -ikoni popupin avaamiseen */}
       <TouchableOpacity style={styles.helpIcon} onPress={() => setShowRules(true)}>
         <MaterialIcons name="help-outline" size={50} color="white" />

@@ -6,23 +6,31 @@ const GameRules = () => {
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Treffipelin Säännöt</Text>
 
-            <Text style={styles.subtitle}>Yleiset Säännöt:</Text>
-            <Text style={styles.rule}>1. Jokainen pelaaja luo profiilikortin valitsemalla kuusi ominaisuutta treffikumppanilleen.</Text>
-            <Text style={styles.rule}>2. Kortit sekoitetaan ja jaetaan satunnaisesti.</Text>
-            <Text style={styles.rule}>3. Kierroksen aikana yksi pelaaja kerrallaan saa oman treffikorttinsa ja päättää, haluaako jatkaa seuraaville treffeille.</Text>
+            <Text style={styles.subtitle}>Pelin Aloittaminen:</Text>
+            <Text style={styles.rule}>1. Jokainen pelaaja kirjoittaa kolme hyvää ja kolme huonoa piirrettä fiktiivisestä treffikumppanista.</Text>
+            <Text style={styles.rule}>2. Pelin voi aloittaa vasta, kun kaikki pelaajat ovat kirjoittaneet kaikki piirteet.</Text>
+            <Text style={styles.rule}>3. Pelin luonut pelaaja (isäntä) pystyy ainoastaan aloittamaan pelin.</Text>
+
+            <Text style={styles.subtitle}>Pelin Kulku:</Text>
+            <Text style={styles.rule}>1. Pelissä on 6 kierrosta.</Text>
+            <Text style={styles.rule}>2. Jokaisella kierroksella peli antaa yhden piirteen jokaiselle pelaajalle vuoron perään.</Text>
+            <Text style={styles.rule}>3. Pelaaja päättää, haluaako jatkaa treffeille vastaamalla "Yes" tai erota vastaamalla "No".</Text>
 
             <Text style={styles.subtitle}>Juomapelin Säännöt:</Text>
-            <Text style={styles.rule}>1. Jos päätät jatkaa treffeille, juo 1 hörppy.</Text>
-            <Text style={styles.rule}>2. Jos et halua jatkaa, kaikki muut pelaajat juovat 2 hörppyä.</Text>
-            <Text style={styles.rule}>3. Erikoistilanteet ja juomasäännöt voivat vaihdella kierroksittain!</Text>
+            <Text style={styles.rule}>1. Jokaisen pelaajan 1., 3., 5. ja 6. treffeille nostetaan malja ja onnitellaan sanomalla esimerkiksi "Ensimmäisille treffeille!" ja otetaan huikka omasta juomasta.</Text>
+            <Text style={styles.rule}>2. Piirteen nostanut pelaaja onnittelee myös itseään ja juo huikan.</Text>
+            <Text style={styles.rule}>3. Jos pelaaja päättää erota treffikumppanista, nostetaan malja eroille ja otetaan huikka. Seuraavalla kierroksella pelaaja pääsee uusille treffeille.</Text>
 
-            <Text style={styles.subtitle}>Pelin Aloittaminen:</Text>
-            <Text style={styles.rule}>1. Isäntä luo peliaulan ja jakaa pinkoodin muille pelaajille.</Text>
-            <Text style={styles.rule}>2. Kaikki liittyvät peliaulaan syöttämällä pinkoodin.</Text>
-            <Text style={styles.rule}>3. Kun kaikki ovat valmiita, isäntä aloittaa pelin.</Text>
+            <Text style={styles.subtitle}>Juomismäärät:</Text>
+            <Text style={styles.rule}>Ensimmäiset treffit = 1 huikka jokainen</Text>
+            <Text style={styles.rule}>Kolmannet treffit = 1 huikka jokainen</Text>
+            <Text style={styles.rule}>Viidennet treffit = 1 huikka jokainen</Text>
+            <Text style={styles.rule}>Kuudennet treffit = 1 huikka jokainen</Text>
+            <Text style={styles.rule}>Erotilanne = 1 huikka jokainen</Text>
 
-            <Text style={styles.footer}>Nauti pelistä ja muista pitää hauskaa vastuullisesti!</Text>
-        </ScrollView>
+            <Text style={styles.footer}>Nauti pelistä ja muista pelata vastuullisesti!</Text>
+            </ScrollView>
+
     );
 };
 
