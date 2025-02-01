@@ -23,17 +23,22 @@ export default function CardTraits({ route, navigation }) {
   
         if (snapshot.exists()) {
           const gameData = snapshot.val();
-          const updatedTraits = [...(gameData.traits || []), ...traits];
   
-          // Update the traits in Firebase
+          // Lisää käyttäjän piirteet omaan solmuunsa
+          const updatedTraits = {
+            ...(gameData.traits || {}), 
+            [username]: traits, // Tallenna piirteet käyttäjänimen alle
+          };
+  
+          // Päivitä tietokantaan
           await update(gameRef, { traits: updatedTraits });
-
-          // Mark this player as having completed their traits
+  
+          // Merkitse pelaaja valmiiksi
           await update(ref(database, `games/${gamepin}/players/${username}`), {
-            traitsCompleted: true, // Set traitsCompleted to true for this player
+            traitsCompleted: true,
           });
-
-          // Navigate to GameLobby page
+  
+          // Siirry GameLobbyyn
           navigation.navigate('GameLobby', { gamepin, username });
         } else {
           Alert.alert('Error', 'Game not found');
@@ -43,9 +48,10 @@ export default function CardTraits({ route, navigation }) {
         Alert.alert('Error', 'Failed to save traits. Please try again.');
       }
     } else {
-      Alert.alert('Error', 'Please fill all traits');
+      Alert.alert('Please fill all traits');
     }
   };
+  
 
   return (
     <View style={styles.container}>

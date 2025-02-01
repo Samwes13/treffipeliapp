@@ -10,217 +10,167 @@ export default function GamePlay({ route, navigation }) {
 
   if (!username) {
     console.error("Username is undefined. Please check navigation params.");
-    return (
-      <View>
-        <Text>Error: Username is undefined.</Text>
-      </View>
-    );
+    return <View><Text>Error: Username is undefined.</Text></View>;
   }
 
-  const [players, setPlayers] = useState([]);
-  const [traits, setTraits] = useState([]);
-  const [usedTraits, setUsedTraits] = useState([]);
-  const [currentTrait, setCurrentTrait] = useState('');
-  const [currentRound, setCurrentRound] = useState(1);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [playerAcceptedTraits, setPlayerAcceptedTraits] = useState([]);
+  const [gameState, setGameState] = useState({
+    players: [],
+    traits: [],
+    usedTraits: [],
+    currentTrait: '',
+    currentRound: 1,
+    currentPlayerIndex: 0,
+    playerAcceptedTraits: [],
+  });
 
   useEffect(() => {
     const gameRef = ref(database, `games/${gamepin}`);
     const unsubscribe = onValue(gameRef, (snapshot) => {
       const gameData = snapshot.val();
       if (gameData) {
-        setTraits(gameData.traits || []);
-        setUsedTraits(gameData.usedTraits || []);
-        setCurrentTrait(gameData.currentTrait || '');
-        setCurrentPlayerIndex(gameData.currentPlayerIndex || 0);
-        setCurrentRound(gameData.currentRound || 1);
-  
-        const updatedPlayers = Object.keys(gameData.players || {}).map((key) => ({
-          username: key,
-          ...gameData.players[key],
+        setGameState(prevState => ({
+          ...prevState,
+          traits: gameData.traits || [],
+          usedTraits: gameData.usedTraits || [],
+          currentTrait: gameData.currentTrait || '',
+          currentPlayerIndex: gameData.currentPlayerIndex || 0,
+          currentRound: gameData.currentRound || 1,
+          players: Object.keys(gameData.players || {}).map((key) => ({
+            username: key,
+            ...gameData.players[key],
+          })),
         }));
-        setPlayers(updatedPlayers);
-  
-        // Tarkista, onko peli päättynyt
+
         if (gameData.currentRound > 6) {
-          console.log('Peli päättyi! Siirretään pelaajat GameEnd-sivulle.');
-  
-          // Päivitä pelaajien tila ja siirrä kaikki pelaajat GameEnd-sivulle
+          console.log('Game over! Navigating to GameEnd.');
           const playersRef = ref(database, `games/${gamepin}/players`);
           const playerUpdates = {};
-          updatedPlayers.forEach((player) => {
+          gameState.players.forEach(player => {
             playerUpdates[player.username] = { ...player, inGame: false };
           });
-  
+
           update(playersRef, playerUpdates)
-            .then(() => {
-              navigation.navigate('GameEnd', { gamepin, username });
-            })
-            .catch((error) => console.error('Virhe pelaajien tilan päivittämisessä:', error));
+            .then(() => navigation.navigate('GameEnd', { gamepin, username }))
+            .catch(err => console.error('Error updating player states:', err));
         }
       }
     });
-  
+
     return () => unsubscribe();
-  }, [gamepin, navigation]);
-  
-  
+  }, [gamepin, navigation, gameState.players]);
 
   useEffect(() => {
-    const gameRef = ref(database, `games/${gamepin}`);
-
-    if (!currentTrait && traits.length > 0) {
-      console.log("currentTrait puuttuu. Asetetaan ensimmäinen piirre.");
-      const firstTrait = traits[0];
-
-      update(gameRef, {
+    if (!gameState.currentTrait && gameState.traits.length > 0) {
+      console.log("Setting first trait.");
+      const firstTrait = gameState.traits[0];
+      const updatedTraits = gameState.traits.slice(1);  // Remove the first trait
+      update(ref(database, `games/${gamepin}`), {
         currentTrait: firstTrait,
-        usedTraits: [firstTrait],
-      }).catch((error) => console.error("Virhe ensimmäisen piirteen asettamisessa:", error));
+        traits: updatedTraits,  // Remove the first trait from the traits array
+        usedTraits: [firstTrait],  // Add the first trait to the usedTraits array
+      }).catch(err => console.error("Error setting first trait:", err));
     }
-  }, [traits, currentTrait, gamepin]);
-
+  }, [gameState.traits, gameState.currentTrait, gamepin]);
   
-
-  
-
 
   const getNextTrait = () => {
-    const availableTraits = traits.filter((trait) => !usedTraits.includes(trait));
-
-    if (availableTraits.length === 0) {
-      console.log("Kaikki piirteet on käytetty.");
-      return null;
-    }
-
+    const availableTraits = gameState.traits.filter((trait) => !gameState.usedTraits.includes(trait));
+    if (availableTraits.length === 0) return null;
+  
     const nextTrait = availableTraits[0];
-    const gameRef = ref(database, `games/${gamepin}`);
-    update(gameRef, {
+    
+    // Remove the nextTrait from the `traits` list in the database
+    const updatedTraits = gameState.traits.filter(trait => trait !== nextTrait);
+  
+    // Update the game state in the database
+    update(ref(database, `games/${gamepin}`), {
       currentTrait: nextTrait,
-      usedTraits: [...usedTraits, nextTrait],
-    }).catch((error) => console.error("Virhe päivitettäessä piirteitä:", error));
-
+      traits: updatedTraits,  // Remove the trait from the available list
+      usedTraits: [...gameState.usedTraits, nextTrait],  // Add the trait to the used list
+    }).catch(err => console.error("Error updating traits:", err));
+  
     return nextTrait;
   };
+  
 
   const handleDecision = (decision) => {
-    if (!currentTrait) {
-      console.error("Virhe: currentTrait on määrittelemätön.");
+    if (!gameState.currentTrait) {
+      console.error("currentTrait is undefined.");
       return;
     }
-  
-    console.log(`${username} valitsi: ${decision} piirrelle: ${currentTrait}`);
-  
+
+    console.log(`${username} selected: ${decision} for trait: ${gameState.currentTrait}`);
     const playerRef = ref(database, `games/${gamepin}/players/${username}`);
-    let updatedAcceptedTraits;
-  
-    if (decision === 'juu') {
-      updatedAcceptedTraits = [...playerAcceptedTraits, currentTrait];
-    } else if (decision === 'ei') {
-      updatedAcceptedTraits = []; // Tyhjennetään hyväksytyt piirteet, kun pelaaja valitsee "Ei"
-    }
-  
-    console.log("Updated Accepted Traits: ", updatedAcceptedTraits); // Add this log to check if the traits are being updated correctly
-    
+    const updatedAcceptedTraits = decision === 'juu'
+      ? [...gameState.playerAcceptedTraits, gameState.currentTrait]
+      : [];
+
     update(playerRef, { acceptedTraits: updatedAcceptedTraits })
-      .then(() => setPlayerAcceptedTraits(updatedAcceptedTraits))
-      .catch((error) => console.error("Virhe hyväksyttyjen piirteiden päivityksessä:", error));
-  
+      .then(() => setGameState(prevState => ({
+        ...prevState,
+        playerAcceptedTraits: updatedAcceptedTraits,
+      })))
+      .catch(err => console.error("Error updating accepted traits:", err));
+
     const nextTrait = getNextTrait();
-    const nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
-    const nextRound = nextPlayerIndex === 0 ? currentRound + 1 : currentRound;
-  
-    const gameRef = ref(database, `games/${gamepin}`);
-    update(gameRef, {
+    const nextPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+    const nextRound = nextPlayerIndex === 0 ? gameState.currentRound + 1 : gameState.currentRound;
+
+    update(ref(database, `games/${gamepin}`), {
       currentPlayerIndex: nextPlayerIndex,
       currentRound: nextRound,
-    }).catch((error) => console.error("Virhe pelitilan päivityksessä:", error));
-  
-    // Tarkistetaan, onko peli pelattu loppuun (6 kierrosta)
+    }).catch(err => console.error("Error updating game state:", err));
+
     if (nextRound > 6) {
-      console.log("Peli päättyi! Siirretään kaikki pelaajat GameEnd-sivulle.");
-    
+      console.log("Game over! Navigating to GameEnd.");
       const playersRef = ref(database, `games/${gamepin}/players`);
       const playerUpdates = {};
-    
-      players.forEach((player) => {
-        playerUpdates[player.username] = { ...player, inGame: false }; // Merkitään pelaajat pelin loppuneiksi
+      gameState.players.forEach(player => {
+        playerUpdates[player.username] = { ...player, inGame: false };
       });
-    
-      update(playersRef, playerUpdates)
-        .then(() => {
-          navigation.navigate('GameEnd', { gamepin, username }); // Navigointi GameEnd-sivulle
-        })
-        .catch((error) => console.error("Virhe pelaajien päivityksessä:", error));
-    }
-    
-  };
-  
-  
 
-  
-  
+      update(playersRef, playerUpdates)
+        .then(() => navigation.navigate('GameEnd', { gamepin, username }))
+        .catch(err => console.error("Error updating player states:", err));
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        // Background Linear Gradient
-        colors={['#906AFE', 'transparent']}
-        style={[styles.background, { zIndex: -1 }]}
-        start={{ x: 1, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
-      <Text style={styles.roundText}>Round {currentRound}</Text>
-      <Text style={styles.playerTextPlay}>Player: {players[currentPlayerIndex]?.username}</Text>
-      <Text style={styles.newtraitText}> New trait:</Text>
-      <Text style={styles.traitText}> {currentTrait}</Text>
-      
+      <LinearGradient colors={['#906AFE', 'transparent']} style={[styles.background, { zIndex: -1 }]} start={{ x: 1, y: 0 }} end={{ x: 1, y: 1 }} />
+      <Text style={styles.roundText}>Round {gameState.currentRound}</Text>
+      <Text style={styles.playerTextPlay}>Player: {gameState.players[gameState.currentPlayerIndex]?.username}</Text>
+      <Text style={styles.newtraitText}>New trait:</Text>
+      <Text style={styles.traitText}>{gameState.currentTrait}</Text>
 
-      {players.length > 0 && (
+      {gameState.players.length > 0 && (
         <>
-          {players[currentPlayerIndex]?.username === username ? (
-            <>
+          {gameState.players[gameState.currentPlayerIndex]?.username === username ? (
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.button} onPress={() => handleDecision('juu')}>
-                  <Text style={styles.buttonText}>Yes</Text>
+                <Text style={styles.buttonText}>Yes</Text>
               </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button} onPress={() => handleDecision('ei')}>
-            <Text style={styles.buttonText}>No</Text>
-          </TouchableOpacity>
-          </View>
-            </>
+              <TouchableOpacity style={styles.button} onPress={() => handleDecision('ei')}>
+                <Text style={styles.buttonText}>No</Text>
+              </TouchableOpacity>
+            </View>
           ) : (
-            <Text style={styles.playerTextPlay}>
-              Waiting for {players[currentPlayerIndex]?.username} to decide...
-            </Text>
+            <Text style={styles.playerTextPlay}>Waiting for {gameState.players[gameState.currentPlayerIndex]?.username} to decide...</Text>
           )}
         </>
       )}
 
-      {/* Näytä hyväksytyt traitit vain vuorossa olevalle pelaajalle */}
-      <Text style={styles.playerAcceptedTraitset}>
-        Accepted Traits:
-      </Text>
-
-      {players[currentPlayerIndex]?.username === username && (
-        playerAcceptedTraits.map((trait, index) => (
-          <Text key={index} style={styles.playerAcceptedTraitset}>
-            {index + 1}. {trait}
-          </Text>
+      <Text style={styles.playerAcceptedTraitset}>Accepted Traits:</Text>
+      {gameState.players[gameState.currentPlayerIndex]?.username === username && (
+        gameState.playerAcceptedTraits.map((trait, index) => (
+          <Text key={index} style={styles.playerAcceptedTraitset}>{index + 1}. {trait}</Text>
         ))
       )}
-
-      {players[currentPlayerIndex]?.username !== username && currentPlayerIndex !== -1 && (
-        players[currentPlayerIndex]?.acceptedTraits?.map((trait, index) => (
-          <Text key={index} style={styles.playerAcceptedTraitset}>
-            {index + 1}. {trait}
-          </Text>
+      {gameState.players[gameState.currentPlayerIndex]?.username !== username && (
+        gameState.players[gameState.currentPlayerIndex]?.acceptedTraits?.map((trait, index) => (
+          <Text key={index} style={styles.playerAcceptedTraitset}>{index + 1}. {trait}</Text>
         ))
       )}
-
-
     </View>
   );
 }

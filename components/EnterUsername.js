@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Alert, TouchableOpacity, Image } from 'react-native';
 import styles from '../styles'; 
-import { ref, push } from 'firebase/database';
+import { ref, push, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -15,7 +15,16 @@ export default function EnterUsername({ navigation }) {
   };
 
   const saveUsername = (username) => {
-    push(ref(database, 'users/'), { username });
+    const userRef = push(ref(database, 'users/'), { username });
+    userRef.then((snapshot) => {
+      const userKey = snapshot.key;
+      // Remove username after 1 minute
+      setTimeout(() => {
+        remove(ref(database, `users/${userKey}`))
+          .then(() => console.log(`Username ${username} removed after 1 minute`))
+          .catch((error) => console.error("Error removing username:", error));
+      }, 2 * 60 * 60 * 1000); // 2 hours in milliseconds
+    }).catch((error) => console.error("Error saving username:", error));
   };
 
   const handleSubmit = () => {
@@ -23,7 +32,7 @@ export default function EnterUsername({ navigation }) {
       saveUsername(username);
       navigation.navigate('GameOptionScreen', { username }); 
     } else {
-      Alert.alert('Error', 'Please enter a username');
+      window.alert('Please enter a username');
     }
   };
 

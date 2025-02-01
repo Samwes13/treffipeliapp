@@ -206,6 +206,53 @@ const styles = StyleSheet.create({
 
   },
 
+  removeButton: {
+    color: 'red',
+    fontWeight: 'bold',
+    marginLeft: 10,
+  },
+
+  //animaatio gameplay
+  turnAnimation: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  turnText: {
+    color: 'white',
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  yesAnimation: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  ball: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ballText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+
 });
 
 export default styles;

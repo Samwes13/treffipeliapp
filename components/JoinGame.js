@@ -14,6 +14,12 @@ export default function JoinGame({ navigation, route }) {
     const gameRef = ref(database, `games/${pincode}`);
     const snapshot = await get(gameRef);
 
+    if (!pincode.trim()) {
+      // Tarkista, että pinkoodi ei ole tyhjä
+      window.alert('Error! Pincode cannot be empty.');
+      return;
+    }
+
     if (snapshot.exists()) {
       // Lisää pelaaja Firebase-tietokantaan
       const playersRef = ref(database, `games/${pincode}/players/${username}`);
@@ -27,7 +33,7 @@ export default function JoinGame({ navigation, route }) {
       navigation.navigate('CardTraits', { username, gamepin: pincode }); // Välitä oikea käyttäjänimi
     } else {
       // Näytä virheilmoitus, jos pelikoodi on väärin
-      Alert.alert('Error', 'Pincode is wrong, try again.');
+      window.alert('Pincode is wrong, try again.');
     }
   };
 
