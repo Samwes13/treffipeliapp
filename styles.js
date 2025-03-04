@@ -213,45 +213,24 @@ const styles = StyleSheet.create({
   },
 
   //animaatio gameplay
-  turnAnimation: {
+  animatedContainer: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
+    top: '40%',
+    left: '50%',
+    transform: [{ translateX: -75 }, { translateY: -50 }],
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 20,
+    borderRadius: 10,
+    zIndex: 10,
   },
-  turnText: {
-    color: 'white',
-    fontSize: 32,
+  
+  animatedText: {
+    fontSize: 24,
     fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
   },
-  yesAnimation: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  ball: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'blue',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ballText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
+  
 
 });
 

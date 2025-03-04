@@ -9,10 +9,10 @@ export default function CardTraits({ route, navigation }) {
   const { username, gamepin } = route.params;
   const [traits, setTraits] = useState(Array(6).fill('')); // Initialize 6 traits
 
-  const handleInputChange = (text, index) => {
+  const handleInputChange = (text, index) => { 
     const newTraits = [...traits];
     newTraits[index] = text;
-    setTraits(newTraits);
+    setTraits(newTraits); 
   };
 
   const saveTraits = async () => {

@@ -53,6 +53,14 @@ export default function GameLobby({ route, navigation }) {
     }
   }, [isGameStarted, navigation, gamepin, username]);
 
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
   const startGame = async () => {
     if (isHost && allPlayersReady) {
       try {
@@ -68,6 +76,7 @@ export default function GameLobby({ route, navigation }) {
           // Käydään läpi kaikki pelaajat ja lisätään heidän traitit yhteiseen olioon
           Object.keys(traitsData).forEach(playerUsername => {
             const playerTraits = traitsData[playerUsername];
+            
   
             // Käydään läpi pelaajan traitit ja lisätään ne olioon
             Object.values(playerTraits).forEach(trait => {
@@ -75,6 +84,13 @@ export default function GameLobby({ route, navigation }) {
               traitCounter++; // Lisätään laskurin arvoa
             });
           });
+
+          const shuffledTraits = shuffleArray(Object.values(updatedTraits));
+          const shuffledTraitsObject = {};
+          shuffledTraits.forEach((trait, index) => {
+            shuffledTraitsObject[index] = trait;
+          });
+  
   
           // Päivitetään Firebase, jossa kaikki traitit yhdistetty
           await update(traitsRef, updatedTraits);

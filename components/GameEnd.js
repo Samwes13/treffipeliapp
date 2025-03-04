@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { ref, update, get, remove } from 'firebase/database';
+import { ref, update, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import styles from '../styles';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,27 +13,38 @@ export default function GameEnd({ route, navigation }) {
     return null;
   }
 
-  // Siirretään peli tietokannasta 5 minuutin kuluttua
-  const deleteGameAfterTimeout = async () => {
-    setTimeout(async () => {
+  // Peli poistetaan 5 minuutin kuluttua
+  useEffect(() => {
+    const deleteGameTimeout = setTimeout(async () => {
       const gameRef = ref(database, `games/${gamepin}`);
       try {
-        await remove(gameRef); // Poistaa pelin tietokannasta
+        await remove(gameRef);
         console.log(`Peli ${gamepin} poistettu tietokannasta.`);
       } catch (error) {
         console.error('Virhe pelin poistamisessa:', error);
       }
-    }, 5 * 60 * 1000); // Poistetaan peli 5 minuutin kuluttua
-  };
+    }, 5 * 60 * 1000);
 
-  // Replay-napin logiikka: Siirtyy takaisin GameOptionScreen-sivulle
+    return () => clearTimeout(deleteGameTimeout);
+  }, [gamepin]);
+
+  // Peli resetoidaan ja siirrytään GameOptionScreeniin
   const handleReplay = async () => {
     try {
-      // Navigoi takaisin GameOptionScreen-sivulle
-      navigation.navigate('GameOptionScreen', { username });
+      const gameRef = ref(database, `games/${gamepin}`);
       
-      // Poistetaan peli tietokannasta 5 minuutin kuluttua
-      await deleteGameAfterTimeout();
+      // Resetoi vain tarvittavat tiedot
+      await update(gameRef, {
+        currentRound: 1,
+        currentPlayerIndex: 0,
+        currentTrait: '',
+        usedTraits: [],
+      });
+
+      console.log("Peli resetoitu uutta peliä varten.");
+
+      // Navigoi takaisin alkuun
+      navigation.navigate('GameOptionScreen', { username, gamepin });
     } catch (error) {
       console.error('Virhe Replay-napissa:', error);
     }
@@ -42,7 +53,6 @@ export default function GameEnd({ route, navigation }) {
   return (
     <View style={styles.container}>
       <LinearGradient
-        // Background Linear Gradient
         colors={['#906AFE', 'transparent']}
         style={[styles.background, { zIndex: -1 }]}
         start={{ x: 1, y: 0 }}

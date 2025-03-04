@@ -4,6 +4,7 @@ import { ref, onValue, update } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import styles from '../styles';
 import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 export default function GamePlay({ route, navigation }) {
   const { gamepin, username } = route.params;
@@ -11,6 +12,15 @@ export default function GamePlay({ route, navigation }) {
   if (!username) {
     console.error("Username is undefined. Please check navigation params.");
     return <View><Text>Error: Username is undefined.</Text></View>;
+  }
+  
+  if (!gamepin) {
+    console.error("Gamepin is undefined. Please check navigation params.");
+    return (
+      <View>
+        <Text>Error: Gamepin is undefined.</Text>
+      </View>
+    );
   }
 
   const [gameState, setGameState] = useState({
@@ -23,41 +33,60 @@ export default function GamePlay({ route, navigation }) {
     playerAcceptedTraits: [],
   });
 
+  //Animaatio {
+
+  const fadeAnim = useSharedValue(1); // Animaation aloitusarvo
+
   useEffect(() => {
-    const gameRef = ref(database, `games/${gamepin}`);
-    const unsubscribe = onValue(gameRef, (snapshot) => {
-      const gameData = snapshot.val();
-      if (gameData) {
-        setGameState(prevState => ({
-          ...prevState,
-          traits: gameData.traits || [],
-          usedTraits: gameData.usedTraits || [],
-          currentTrait: gameData.currentTrait || '',
-          currentPlayerIndex: gameData.currentPlayerIndex || 0,
-          currentRound: gameData.currentRound || 1,
-          players: Object.keys(gameData.players || {}).map((key) => ({
-            username: key,
-            ...gameData.players[key],
-          })),
-        }));
+    fadeAnim.value = 1; 
+    fadeAnim.value = withTiming(0, { duration: 4000 }); 
+  }, [gameState.currentPlayerIndex]);
+  
+    const animatedStyle = useAnimatedStyle(() => ({
+      opacity: fadeAnim.value,
+    }));
+// }
 
-        if (gameData.currentRound > 6) {
-          console.log('Game over! Navigating to GameEnd.');
-          const playersRef = ref(database, `games/${gamepin}/players`);
-          const playerUpdates = {};
-          gameState.players.forEach(player => {
-            playerUpdates[player.username] = { ...player, inGame: false };
-          });
+// Päivitä pelin tila, kun tietokannasta tulee muutoksia
+useEffect(() => {
+  const gameRef = ref(database, `games/${gamepin}`);
+  const unsubscribe = onValue(gameRef, (snapshot) => {
+    const gameData = snapshot.val();
+    if (gameData) {
+      setGameState(prevState => ({
+        ...prevState,
+        traits: gameData.traits || [],
+        usedTraits: gameData.usedTraits || [],
+        currentTrait: gameData.currentTrait || '',
+        currentPlayerIndex: gameData.currentPlayerIndex || 0,
+        currentRound: gameData.currentRound || 1,
+        players: Object.keys(gameData.players || {}).map((key) => ({
+          username: key,
+          ...gameData.players[key],
+        })),
+      }));
 
-          update(playersRef, playerUpdates)
-            .then(() => navigation.navigate('GameEnd', { gamepin, username }))
-            .catch(err => console.error('Error updating player states:', err));
-        }
+      if (gameData.currentRound > 6) {
+        console.log('Game over! Navigating to GameEnd.');
+        const playersRef = ref(database, `games/${gamepin}/players`);
+        const playerUpdates = {};
+        gameState.players.forEach(player => {
+          playerUpdates[player.username] = { ...player, inGame: false };
+        });
+
+        update(playersRef, playerUpdates)
+          .then(() => navigation.navigate('GameEnd', { gamepin, username }))
+          .catch(err => console.error('Error updating player states:', err));
       }
-    });
+    } else {
+      console.error("Game data not found.");
+    }
+  }, (error) => {
+    console.error("Error fetching game data:", error);
+  });
 
-    return () => unsubscribe();
-  }, [gamepin, navigation, gameState.players]);
+  return () => unsubscribe();
+}, [gamepin, navigation, gameState.players]);
 
   useEffect(() => {
     if (!gameState.currentTrait && gameState.traits.length > 0) {
@@ -75,18 +104,18 @@ export default function GamePlay({ route, navigation }) {
 
   const getNextTrait = () => {
     const availableTraits = gameState.traits.filter((trait) => !gameState.usedTraits.includes(trait));
-    if (availableTraits.length === 0) return null;
+    if (availableTraits.length === 0) {
+      console.log("No more traits available.");
+      return null;
+    }
   
     const nextTrait = availableTraits[0];
-    
-    // Remove the nextTrait from the `traits` list in the database
     const updatedTraits = gameState.traits.filter(trait => trait !== nextTrait);
   
-    // Update the game state in the database
     update(ref(database, `games/${gamepin}`), {
       currentTrait: nextTrait,
-      traits: updatedTraits,  // Remove the trait from the available list
-      usedTraits: [...gameState.usedTraits, nextTrait],  // Add the trait to the used list
+      traits: updatedTraits,
+      usedTraits: [...gameState.usedTraits, nextTrait],
     }).catch(err => console.error("Error updating traits:", err));
   
     return nextTrait;
@@ -142,7 +171,7 @@ export default function GamePlay({ route, navigation }) {
       <Text style={styles.playerTextPlay}>Player: {gameState.players[gameState.currentPlayerIndex]?.username}</Text>
       <Text style={styles.newtraitText}>New trait:</Text>
       <Text style={styles.traitText}>{gameState.currentTrait}</Text>
-
+  
       {gameState.players.length > 0 && (
         <>
           {gameState.players[gameState.currentPlayerIndex]?.username === username ? (
@@ -159,7 +188,7 @@ export default function GamePlay({ route, navigation }) {
           )}
         </>
       )}
-
+  
       <Text style={styles.playerAcceptedTraitset}>Accepted Traits:</Text>
       {gameState.players[gameState.currentPlayerIndex]?.username === username && (
         gameState.playerAcceptedTraits.map((trait, index) => (
@@ -171,6 +200,13 @@ export default function GamePlay({ route, navigation }) {
           <Text key={index} style={styles.playerAcceptedTraitset}>{index + 1}. {trait}</Text>
         ))
       )}
+  
+      {/* Pelaajan nimi animaationa */}
+      <Animated.View style={[styles.animatedContainer, animatedStyle]}>
+        <Text style={styles.animatedText}>
+          {gameState.players[gameState.currentPlayerIndex]?.username}'s Turn
+        </Text>
+      </Animated.View>
     </View>
   );
 }
