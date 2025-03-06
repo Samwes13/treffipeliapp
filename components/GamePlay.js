@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { View, Text, TouchableOpacity } from 'react-native';
 import { ref, onValue, update } from 'firebase/database';
 import { database } from '../firebaseConfig';
@@ -8,7 +8,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-na
 
 export default function GamePlay({ route, navigation }) {
   const { gamepin, username } = route.params;
-
+  
   if (!username) {
     console.error("Username is undefined. Please check navigation params.");
     return <View><Text>Error: Username is undefined.</Text></View>;
@@ -23,70 +23,80 @@ export default function GamePlay({ route, navigation }) {
     );
   }
 
-  const [gameState, setGameState] = useState({
-    players: [],
-    traits: [],
-    usedTraits: [],
-    currentTrait: '',
-    currentRound: 1,
-    currentPlayerIndex: 0,
-    playerAcceptedTraits: [],
+  const [gameState, setGameState] = useState(() => {
+    // Yritä ladata pelin tila localStorage:sta
+    const savedState = localStorage.getItem(`gameState_${gamepin}_${username}`);
+    return savedState ? JSON.parse(savedState) : {
+      players: [],
+      traits: [],
+      usedTraits: [],
+      currentTrait: '',
+      currentRound: 1,
+      currentPlayerIndex: 0,
+      playerAcceptedTraits: [],
+    };
   });
 
-  //Animaatio {
+  // Tallenna pelin tila localStorageen aina kun se muuttuu
+  useEffect(() => {
+    localStorage.setItem(`gameState_${gamepin}_${username}`, JSON.stringify(gameState));
+  }, [gameState, gamepin, username]);
 
-  const fadeAnim = useSharedValue(1); // Animaation aloitusarvo
+  // Animaatio
+  const fadeAnim = useSharedValue(1);
 
   useEffect(() => {
     fadeAnim.value = 1; 
     fadeAnim.value = withTiming(0, { duration: 4000 }); 
   }, [gameState.currentPlayerIndex]);
   
-    const animatedStyle = useAnimatedStyle(() => ({
-      opacity: fadeAnim.value,
-    }));
-// }
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: fadeAnim.value,
+  }));
 
-// Päivitä pelin tila, kun tietokannasta tulee muutoksia
-useEffect(() => {
-  const gameRef = ref(database, `games/${gamepin}`);
-  const unsubscribe = onValue(gameRef, (snapshot) => {
-    const gameData = snapshot.val();
-    if (gameData) {
-      setGameState(prevState => ({
-        ...prevState,
-        traits: gameData.traits || [],
-        usedTraits: gameData.usedTraits || [],
-        currentTrait: gameData.currentTrait || '',
-        currentPlayerIndex: gameData.currentPlayerIndex || 0,
-        currentRound: gameData.currentRound || 1,
-        players: Object.keys(gameData.players || {}).map((key) => ({
-          username: key,
-          ...gameData.players[key],
-        })),
-      }));
+  // Päivitä pelin tila, kun tietokannasta tulee muutoksia
+  useEffect(() => {
+    const gameRef = ref(database, `games/${gamepin}`);
+    const unsubscribe = onValue(gameRef, (snapshot) => {
+      const gameData = snapshot.val();
+      if (gameData) {
+        setGameState(prevState => ({
+          ...prevState,
+          traits: gameData.traits || [],
+          usedTraits: gameData.usedTraits || [],
+          currentTrait: gameData.currentTrait || '',
+          currentPlayerIndex: gameData.currentPlayerIndex || 0,
+          currentRound: gameData.currentRound || 1,
+          players: Object.keys(gameData.players || {}).map((key) => ({
+            username: key,
+            ...gameData.players[key],
+          })),
+        }));
 
-      if (gameData.currentRound > 6) {
-        console.log('Game over! Navigating to GameEnd.');
-        const playersRef = ref(database, `games/${gamepin}/players`);
-        const playerUpdates = {};
-        gameState.players.forEach(player => {
-          playerUpdates[player.username] = { ...player, inGame: false };
-        });
+        if (gameData.currentRound > 6) {
+          console.log('Game over! Navigating to GameEnd.');
+          const playersRef = ref(database, `games/${gamepin}/players`);
+          const playerUpdates = {};
+          gameState.players.forEach(player => {
+            playerUpdates[player.username] = { ...player, inGame: false };
+          });
 
-        update(playersRef, playerUpdates)
-          .then(() => navigation.navigate('GameEnd', { gamepin, username }))
-          .catch(err => console.error('Error updating player states:', err));
+          update(playersRef, playerUpdates)
+            .then(() => {
+              localStorage.removeItem(`gameState_${gamepin}_${username}`);
+              navigation.navigate('GameEnd', { gamepin, username });
+            })
+            .catch(err => console.error('Error updating player states:', err));
+        }
+      } else {
+        console.error("Game data not found.");
       }
-    } else {
-      console.error("Game data not found.");
-    }
-  }, (error) => {
-    console.error("Error fetching game data:", error);
-  });
+    }, (error) => {
+      console.error("Error fetching game data:", error);
+    });
 
-  return () => unsubscribe();
-}, [gamepin, navigation, gameState.players]);
+    return () => unsubscribe();
+  }, [gamepin, navigation, gameState.players]);
 
   useEffect(() => {
     if (!gameState.currentTrait && gameState.traits.length > 0) {
@@ -159,7 +169,10 @@ useEffect(() => {
       });
 
       update(playersRef, playerUpdates)
-        .then(() => navigation.navigate('GameEnd', { gamepin, username }))
+        .then(() => {
+          localStorage.removeItem(`gameState_${gamepin}_${username}`);
+          navigation.navigate('GameEnd', { gamepin, username });
+        })
         .catch(err => console.error("Error updating player states:", err));
     }
   };
