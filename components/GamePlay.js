@@ -4,7 +4,7 @@ import { ref, onValue, update } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import styles from '../styles';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 
 export default function GamePlay({ route, navigation }) {
   const { gamepin, username } = route.params;
@@ -42,17 +42,59 @@ export default function GamePlay({ route, navigation }) {
     localStorage.setItem(`gameState_${gamepin}_${username}`, JSON.stringify(gameState));
   }, [gameState, gamepin, username]);
 
-  // Animaatio
-  const fadeAnim = useSharedValue(1);
+ // Animaatiot
+const fadeAnim = useSharedValue(0); // Pelaajan nimi animaatio
+const yesAnimation = useSharedValue(0); // Yes-animaatio
+const noAnimation = useSharedValue(0); // No-animaatio
 
-  useEffect(() => {
-    fadeAnim.value = 1; 
-    fadeAnim.value = withTiming(0, { duration: 4000 }); 
-  }, [gameState.currentPlayerIndex]);
+// Pelaajan nimi animaatio
+const animatedStyle = useAnimatedStyle(() => ({
+  opacity: fadeAnim.value,
+}));
+
+// Yes-animaatio
+const yesAnimatedStyle = useAnimatedStyle(() => ({
+  opacity: yesAnimation.value,
+  transform: [{ scale: yesAnimation.value }],
+}));
+
+// No-animaatio
+const noAnimatedStyle = useAnimatedStyle(() => ({
+  opacity: noAnimation.value,
+  transform: [{ scale: noAnimation.value }],
+}));
+
+// Käynnistä Yes-animaatio
+const triggerYesAnimation = () => {
+  yesAnimation.value = withTiming(1, { duration: 200, easing: Easing.ease }, () => {
+    yesAnimation.value = withTiming(0, { duration: 2500, delay: 200 }, () => {
+      // Käynnistä pelaajan nimi animaatio Yes-animaation jälkeen
+      fadeAnim.value = withTiming(1, { duration: 100 }, () => {
+        fadeAnim.value = withTiming(0, { duration: 2500, delay: 4000 });
+      });
+    });
+  });
+};
+
+// Käynnistä No-animaatio
+const triggerNoAnimation = () => {
+  noAnimation.value = withTiming(1, { duration: 200, easing: Easing.ease }, () => {
+    noAnimation.value = withTiming(0, { duration: 2500, delay: 200 }, () => {
+      // Käynnistä pelaajan nimi animaatio No-animaation jälkeen
+      fadeAnim.value = withTiming(1, { duration: 200 }, () => {
+        fadeAnim.value = withTiming(0, { duration: 2500, delay: 200 });
+      });
+    });
+  });
+};
+
+// Käynnistä pelaajan nimi animaatio, kun currentPlayerIndex muuttuu
+useEffect(() => {
+  fadeAnim.value = withTiming(1, { duration: 200 }, () => {
+    fadeAnim.value = withTiming(0, { duration: 200, delay: 4000 });
+  });
+}, [gameState.currentPlayerIndex]);
   
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: fadeAnim.value,
-  }));
 
   // Päivitä pelin tila, kun tietokannasta tulee muutoksia
   useEffect(() => {
@@ -138,6 +180,12 @@ export default function GamePlay({ route, navigation }) {
       return;
     }
 
+    if (decision === 'juu') {
+      triggerYesAnimation();
+    } else if (decision === 'ei') {
+      triggerNoAnimation();
+    }
+
     console.log(`${username} selected: ${decision} for trait: ${gameState.currentTrait}`);
     const playerRef = ref(database, `games/${gamepin}/players/${username}`);
     const updatedAcceptedTraits = decision === 'juu'
@@ -219,6 +267,20 @@ export default function GamePlay({ route, navigation }) {
         <Text style={styles.animatedText}>
           {gameState.players[gameState.currentPlayerIndex]?.username}'s Turn
         </Text>
+      </Animated.View>
+  
+      {/* Animaatio "Yes"-napille */}
+      <Animated.View style={[styles.animationContainer, yesAnimatedStyle]}>
+        <LinearGradient colors={['#4CAF50', '#81C784']} style={styles.animationBackground}>
+          <Text style={styles.animationText}>Jatkoon!</Text>
+        </LinearGradient>
+      </Animated.View>
+  
+      {/* Animaatio "No"-napille */}
+      <Animated.View style={[styles.animationContainer, noAnimatedStyle]}>
+        <LinearGradient colors={['#F44336', '#E57373']} style={styles.animationBackground}>
+          <Text style={styles.animationText}>Eroille</Text>
+        </LinearGradient>
       </Animated.View>
     </View>
   );

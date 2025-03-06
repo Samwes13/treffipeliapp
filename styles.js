@@ -212,25 +212,51 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
 
-  //animaatio gameplay
-  animatedContainer: {
-    position: 'absolute',
-    top: '40%',
-    left: '50%',
-    transform: [{ translateX: -75 }, { translateY: -50 }],
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    padding: 20,
-    borderRadius: 10,
-    zIndex: 10,
-  },
-  
-  animatedText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-  },
-  
+  ///animaatio gameplay
+animatedContainer: {
+  position: 'absolute',
+  top: '40%', // Asetetaan yläreuna 40% korkeudelle
+  left: '50%', // Asetetaan vasen reuna 50% leveydelle
+  transform: [{ translateX: -70 }, { translateY: -50 }], // Siirretään vasemmalle 100px ja ylöspäin 50px
+  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  padding: 20,
+  borderRadius: 10,
+  zIndex: 10,
+},
+
+animationContainer: {
+  position: 'absolute',
+  top: '40%', // Asetetaan yläreuna 50% korkeudelle
+  left: '50%', // Asetetaan vasen reuna 50% leveydelle
+  width: 200,
+  height: 100,
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderRadius: 20,
+  overflow: 'hidden',
+  zIndex: 5,
+  transform: [{ translateX: -70 }, { translateY: -50 }], // Siirretään vasemmalle 100px ja ylöspäin 50px
+},
+
+animatedText: {
+  fontSize: 24,
+  fontWeight: 'bold',
+  color: '#fff',
+  textAlign: 'center',
+},
+
+animationBackground: {
+  width: '100%',
+  height: '100%',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+animationText: {
+  color: 'white',
+  fontSize: 20,
+  fontWeight: 'bold',
+},
 
 });
 
