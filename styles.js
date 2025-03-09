@@ -213,51 +213,49 @@ const styles = StyleSheet.create({
   },
 
   ///animaatio gameplay
-animatedContainer: {
-  position: 'absolute',
-  top: '40%', // Asetetaan yläreuna 40% korkeudelle
-  left: '50%', // Asetetaan vasen reuna 50% leveydelle
-  transform: [{ translateX: -70 }, { translateY: -50 }], // Siirretään vasemmalle 100px ja ylöspäin 50px
-  backgroundColor: 'rgba(0, 0, 0, 0.7)',
-  padding: 20,
-  borderRadius: 10,
-  zIndex: 10,
-},
-
-animationContainer: {
-  position: 'absolute',
-  top: '40%', // Asetetaan yläreuna 50% korkeudelle
-  left: '50%', // Asetetaan vasen reuna 50% leveydelle
-  width: 200,
-  height: 100,
-  justifyContent: 'center',
-  alignItems: 'center',
-  borderRadius: 20,
-  overflow: 'hidden',
-  zIndex: 5,
-  transform: [{ translateX: -70 }, { translateY: -50 }], // Siirretään vasemmalle 100px ja ylöspäin 50px
-},
-
-animatedText: {
-  fontSize: 24,
-  fontWeight: 'bold',
-  color: '#fff',
-  textAlign: 'center',
-},
-
-animationBackground: {
-  width: '100%',
-  height: '100%',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-
-animationText: {
-  color: 'white',
-  fontSize: 20,
-  fontWeight: 'bold',
-},
-
+  animatedContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tumma tausta
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    pointerEvents: 'none', // Estää animaation peittämisen
+  },
+  
+  animationContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 5,
+    pointerEvents: 'none', // Sama täällä
+  },
+  
+  
+  animatedText: {
+    fontSize: 32, // Isompi teksti
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+  },
+  
+  animationBackground: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  animationText: {
+    color: 'white',
+    fontSize: 28, // Isompi fontti
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  
 });
 
 export default styles;

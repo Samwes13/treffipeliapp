@@ -66,35 +66,56 @@ const noAnimatedStyle = useAnimatedStyle(() => ({
 
 // Käynnistä Yes-animaatio
 const triggerYesAnimation = () => {
-  yesAnimation.value = withTiming(1, { duration: 200, easing: Easing.ease }, () => {
-    yesAnimation.value = withTiming(0, { duration: 2500, delay: 200 }, () => {
-      // Käynnistä pelaajan nimi animaatio Yes-animaation jälkeen
-      fadeAnim.value = withTiming(1, { duration: 100 }, () => {
-        fadeAnim.value = withTiming(0, { duration: 2500, delay: 4000 });
-      });
+  yesAnimation.value = withTiming(1, { duration: 100, easing: Easing.ease }, () => {
+    yesAnimation.value = withTiming(0, { duration: 3000, delay: 100 }, () => {
+      // Käynnistä pelaajan nimi animaatio vasta kun Yes-animaatio on päättynyt
+      setTimeout(() => {
+        fadeAnim.value = withTiming(1, { duration: 100 }, () => {
+          fadeAnim.value = withTiming(0, { duration: 3000 });
+        });
+      }, 500); // Pieni viive ennen nimeä
     });
   });
 };
 
 // Käynnistä No-animaatio
 const triggerNoAnimation = () => {
-  noAnimation.value = withTiming(1, { duration: 200, easing: Easing.ease }, () => {
-    noAnimation.value = withTiming(0, { duration: 2500, delay: 200 }, () => {
-      // Käynnistä pelaajan nimi animaatio No-animaation jälkeen
-      fadeAnim.value = withTiming(1, { duration: 200 }, () => {
-        fadeAnim.value = withTiming(0, { duration: 2500, delay: 200 });
-      });
+  noAnimation.value = withTiming(1, { duration: 100, easing: Easing.ease }, () => {
+    noAnimation.value = withTiming(0, { duration: 3000, delay: 100 }, () => {
+      // Käynnistä pelaajan nimi animaatio vasta kun No-animaatio on päättynyt
+      setTimeout(() => {
+        fadeAnim.value = withTiming(1, { duration: 100 }, () => {
+          fadeAnim.value = withTiming(0, { duration: 3000 });
+        });
+      }, 500); // Pieni viive ennen nimeä
     });
   });
 };
 
-// Käynnistä pelaajan nimi animaatio, kun currentPlayerIndex muuttuu
-useEffect(() => {
-  fadeAnim.value = withTiming(1, { duration: 200 }, () => {
-    fadeAnim.value = withTiming(0, { duration: 200, delay: 4000 });
-  });
-}, [gameState.currentPlayerIndex]);
   
+
+useEffect(() => {
+  const animationRef = ref(database, `games/${gamepin}/animations`);
+  const unsubscribe = onValue(animationRef, (snapshot) => {
+    const animationData = snapshot.val();
+    if (animationData) {
+      const now = Date.now();
+      const delay = Math.max(0, animationData.timestamp + 200 - now); // Varmistaa, että kaikki käynnistyvät yhtä aikaa
+
+      setTimeout(() => {
+        if (animationData.type === 'yes') {
+          triggerYesAnimation();
+        } else if (animationData.type === 'no') {
+          triggerNoAnimation();
+        }
+      }, delay);
+    }
+  });
+
+  return () => unsubscribe();
+}, [gamepin]);
+
+
 
   // Päivitä pelin tila, kun tietokannasta tulee muutoksia
   useEffect(() => {
@@ -180,11 +201,11 @@ useEffect(() => {
       return;
     }
 
-    if (decision === 'juu') {
-      triggerYesAnimation();
-    } else if (decision === 'ei') {
-      triggerNoAnimation();
-    }
+    const animationType = decision === 'juu' ? 'yes' : 'no';
+  const timestamp = Date.now(); // Tallennetaan aikaleima animaation synkronointiin
+
+  update(ref(database, `games/${gamepin}/animations`), { type: animationType, timestamp });
+
 
     console.log(`${username} selected: ${decision} for trait: ${gameState.currentTrait}`);
     const playerRef = ref(database, `games/${gamepin}/players/${username}`);
