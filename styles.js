@@ -212,18 +212,32 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
 
+  //Joingame kohdassa takaisin nappi tyylit
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    bottom: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25, // Pallon muoto
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1, // Varmista, että nappi on päällä muiden elementtien
+  },
+
   ///animaatio gameplay
   animatedContainer: {
     position: 'absolute',
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tumma tausta
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
-    pointerEvents: 'none', // Estää animaation peittämisen
+    pointerEvents: 'none',
+    backgroundColor: '#906AFE',
   },
-  
+
   animationContainer: {
     position: 'absolute',
     width: '100%',
@@ -231,30 +245,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 5,
-    pointerEvents: 'none', // Sama täällä
+    pointerEvents: 'none',
   },
-  
-  
+
   animatedText: {
-    fontSize: 32, // Isompi teksti
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
   },
-  
-  animationBackground: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
+
   animationText: {
     color: 'white',
-    fontSize: 28, // Isompi fontti
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
   },
+
+  drinkUpText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+
   
 });
 

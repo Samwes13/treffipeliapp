@@ -4,7 +4,15 @@ import { ref, onValue, update } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import styles from '../styles';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withSequence,
+  withDelay,
+  Easing,
+} from 'react-native-reanimated';
 
 export default function GamePlay({ route, navigation }) {
   const { gamepin, username } = route.params;
@@ -42,54 +50,86 @@ export default function GamePlay({ route, navigation }) {
     localStorage.setItem(`gameState_${gamepin}_${username}`, JSON.stringify(gameState));
   }, [gameState, gamepin, username]);
 
+
+
+
+
  // Animaatiot
+// Animaatiot
 const fadeAnim = useSharedValue(0); // Pelaajan nimi animaatio
 const yesAnimation = useSharedValue(0); // Yes-animaatio
 const noAnimation = useSharedValue(0); // No-animaatio
 
-// Pelaajan nimi animaatio
-const animatedStyle = useAnimatedStyle(() => ({
-  opacity: fadeAnim.value,
-}));
-
+// Yes-animaatio
 // Yes-animaatio
 const yesAnimatedStyle = useAnimatedStyle(() => ({
   opacity: yesAnimation.value,
-  transform: [{ scale: yesAnimation.value }],
+  transform: [
+    { scale: withSpring(yesAnimation.value, { damping: 10, stiffness: 100 }) }, // BounceIn
+  ],
+  width: '100%', // Täyttää koko näytön leveyssuunnassa
+  height: '100%', // Täyttää koko näytön korkeussuunnassa
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#4CAF50',
+  zIndex: 5,
 }));
 
 // No-animaatio
 const noAnimatedStyle = useAnimatedStyle(() => ({
   opacity: noAnimation.value,
-  transform: [{ scale: noAnimation.value }],
+  transform: [
+    { scale: withSpring(noAnimation.value, { damping: 10, stiffness: 100 }) }, // BounceIn
+  ],
+  width: '100%', // Täyttää koko näytön leveyssuunnassa
+  height: '100%', // Täyttää koko näytön korkeussuunnassa
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#F44336',
+  zIndex: 5,
+}));
+
+// Pelaajan nimi animaatio (fadeInLeft ja BounceOut)
+const animatedStyle = useAnimatedStyle(() => ({
+  opacity: fadeAnim.value,
+  transform: [
+    { translateX: withTiming(fadeAnim.value === 0 ? -500 : 0, { duration: 500 }) }, // fadeInLeft
+    { scale: withSpring(fadeAnim.value, { damping: 10, stiffness: 100 }) }, // BounceOut
+  ],
+  zIndex: 10,
 }));
 
 // Käynnistä Yes-animaatio
+// Käynnistä Yes-animaatio
 const triggerYesAnimation = () => {
-  yesAnimation.value = withTiming(1, { duration: 100, easing: Easing.ease }, () => {
-    yesAnimation.value = withTiming(0, { duration: 3000, delay: 100 }, () => {
-      // Käynnistä pelaajan nimi animaatio vasta kun Yes-animaatio on päättynyt
-      setTimeout(() => {
-        fadeAnim.value = withTiming(1, { duration: 100 }, () => {
-          fadeAnim.value = withTiming(0, { duration: 3000 });
-        });
-      }, 500); // Pieni viive ennen nimeä
-    });
-  });
+  yesAnimation.value = withSequence(
+    withTiming(1, { duration: 500, easing: Easing.ease }), // BounceIn
+    withDelay(3000, withTiming(0, { duration: 500 })) // FadeOut
+  );
+
+  // Käynnistä nimi-animaatio 3 sekunnin kuluttua
+  setTimeout(() => {
+    fadeAnim.value = withSequence(
+      withTiming(1, { duration: 500 }), // fadeInLeft
+      withDelay(3000, withTiming(0, { duration: 500 })) // BounceOut
+    );
+  }, 3000);
 };
 
 // Käynnistä No-animaatio
 const triggerNoAnimation = () => {
-  noAnimation.value = withTiming(1, { duration: 100, easing: Easing.ease }, () => {
-    noAnimation.value = withTiming(0, { duration: 3000, delay: 100 }, () => {
-      // Käynnistä pelaajan nimi animaatio vasta kun No-animaatio on päättynyt
-      setTimeout(() => {
-        fadeAnim.value = withTiming(1, { duration: 100 }, () => {
-          fadeAnim.value = withTiming(0, { duration: 3000 });
-        });
-      }, 500); // Pieni viive ennen nimeä
-    });
-  });
+  noAnimation.value = withSequence(
+    withTiming(1, { duration: 500, easing: Easing.ease }), // BounceIn
+    withDelay(3000, withTiming(0, { duration: 500 })) // FadeOut
+  );
+
+  // Käynnistä nimi-animaatio 3 sekunnin kuluttua
+  setTimeout(() => {
+    fadeAnim.value = withSequence(
+      withTiming(1, { duration: 500 }), // fadeInLeft
+      withDelay(3000, withTiming(0, { duration: 500 })) // BounceOut
+    );
+  }, 3000);
 };
 
   
@@ -283,26 +323,34 @@ useEffect(() => {
         ))
       )}
   
-      {/* Pelaajan nimi animaationa */}
-      <Animated.View style={[styles.animatedContainer, animatedStyle]}>
+       {/* Pelaajan nimi animaationa */}
+    <Animated.View style={[styles.animatedContainer, animatedStyle]}>
+        <View style={styles.animatedText}>
+        {/* Nimi */}
         <Text style={styles.animatedText}>
-          {gameState.players[gameState.currentPlayerIndex]?.username}'s Turn
+          {gameState.players[gameState.currentPlayerIndex]?.username}
         </Text>
-      </Animated.View>
+        {/* Treffit */}
+        <Text style={styles.animatedText}>
+          {gameState.players[gameState.currentPlayerIndex]?.acceptedTraits?.length || 0}. treffit
+        </Text>
+        {/* Drink up! */}
+        {[1, 3, 5, 6].includes(gameState.players[gameState.currentPlayerIndex]?.acceptedTraits?.length || 0) && (
+          <Text style={styles.drinkUpText}>Drink up!</Text>
+        )}
+      </View>
+    </Animated.View>
+
+    {/* Animaatio "Yes"-napille */}
+    <Animated.View style={[styles.animationContainer, yesAnimatedStyle]}>
+      <Text style={styles.animationText}>Jatkoon!</Text>
+    </Animated.View>
+
+    {/* Animaatio "No"-napille */}
+    <Animated.View style={[styles.animationContainer, noAnimatedStyle]}>
+      <Text style={styles.animationText}>Eroille</Text>
+    </Animated.View>
+  </View>
   
-      {/* Animaatio "Yes"-napille */}
-      <Animated.View style={[styles.animationContainer, yesAnimatedStyle]}>
-        <LinearGradient colors={['#4CAF50', '#81C784']} style={styles.animationBackground}>
-          <Text style={styles.animationText}>Jatkoon!</Text>
-        </LinearGradient>
-      </Animated.View>
-  
-      {/* Animaatio "No"-napille */}
-      <Animated.View style={[styles.animationContainer, noAnimatedStyle]}>
-        <LinearGradient colors={['#F44336', '#E57373']} style={styles.animationBackground}>
-          <Text style={styles.animationText}>Eroille</Text>
-        </LinearGradient>
-      </Animated.View>
-    </View>
   );
 }

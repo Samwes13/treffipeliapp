@@ -15,10 +15,26 @@ import GameEnd from './components/GameEnd';
 export default function App() {
   const Stack = createNativeStackNavigator();
 
-  return (
-    
+  //Määritä linking_objekti
+  const linking = {
+    prefixes: ['https://treffipeli.fi', 'treffipeli://'],
+    config: {
+      screens: {
+        EnterUsername: 'EnterUsername',
+        GameOptionScreen: 'GameOptionScreen',
+        GameLobby: 'GameLobby',
+        JoinGame: 'JoinGame',
+        CardTraits: 'CardTraits',
+        GamePlay: 'GamePlay',
+        GameEnd: 'GameEnd',
+      },
+    },
+  };
 
-      <NavigationContainer>
+  return (
+
+
+      <NavigationContainer linking={linking}>
         <Stack.Navigator initialRouteName="EnterUsername">
           <Stack.Screen name="EnterUsername" component={EnterUsername} options={{ headerShown: false }} /> 
           <Stack.Screen name="GameOptionScreen" component={GameOptionScreen} options={{ headerShown: false }} />

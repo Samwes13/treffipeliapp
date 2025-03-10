@@ -4,6 +4,8 @@ import { ref, get, set } from 'firebase/database'; // Hae tietoa Firebase-tietok
 import { database } from '../firebaseConfig'; // Ota tietokanta käyttöön
 import styles from '../styles';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Button } from 'react-native-web';
+import { Ionicons } from '@expo/vector-icons'; // Tuo Ionicons nuolille
 
 export default function JoinGame({ navigation, route }) {
   const { username } = route.params; // Ota käyttäjänimi vastaan reitiltä
@@ -37,6 +39,11 @@ export default function JoinGame({ navigation, route }) {
     }
   };
 
+  // Siirry takaisin edelliselle sivulle
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -56,6 +63,12 @@ export default function JoinGame({ navigation, route }) {
       <TouchableOpacity style={styles.button} onPress={handleJoinGame}>
         <Text style={styles.buttonText}>Join Game</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.backbutton}
+        onPress={handleGoBack}>
+          <Ionicons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
       
     </View>
   );
