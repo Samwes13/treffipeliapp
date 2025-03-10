@@ -4,6 +4,7 @@ import { ref, update, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import styles from '../styles';
 import { LinearGradient } from 'expo-linear-gradient';
+import AdSenseBanner from './AdSenseBanner'; // Tuo AdSense-komponentti
 
 export default function GameEnd({ route, navigation }) {
   const { gamepin, username } = route.params || {};
@@ -63,6 +64,9 @@ export default function GameEnd({ route, navigation }) {
       <TouchableOpacity style={styles.button} onPress={handleReplay}>
         <Text style={styles.buttonText}>Replay</Text>
       </TouchableOpacity>
+
+      {/* AdSense-mainos */}
+      <AdSenseBanner />
     </View>
   );
 }
