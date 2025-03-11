@@ -20,8 +20,8 @@ export default function App() {
     prefixes: ['https://treffipeli.fi', 'treffipeli://'],
     config: {
       screens: {
-        EnterUsername: 'EnterUsername',
-        GameOptionScreen: 'GameOptionScreen',
+        EnterUsername: 'enterusername',
+        GameOptionScreen: 'gameoptionscreen',
         GameLobby: 'GameLobby',
         JoinGame: 'JoinGame',
         CardTraits: 'CardTraits',
