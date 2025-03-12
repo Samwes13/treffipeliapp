@@ -323,23 +323,51 @@ useEffect(() => {
         ))
       )}
   
-       {/* Pelaajan nimi animaationa */}
-    <Animated.View style={[styles.animatedContainer, animatedStyle]}>
-        <View style={styles.animatedText}>
-        {/* Nimi */}
-        <Text style={styles.animatedText}>
-          {gameState.players[gameState.currentPlayerIndex]?.username}
-        </Text>
-        {/* Treffit */}
-        <Text style={styles.animatedText}>
-          {gameState.players[gameState.currentPlayerIndex]?.acceptedTraits?.length || 0}. treffit
-        </Text>
-        {/* Drink up! */}
-        {[1, 3, 5, 6].includes(gameState.players[gameState.currentPlayerIndex]?.acceptedTraits?.length || 0) && (
-          <Text style={styles.drinkUpText}>Drink up!</Text>
-        )}
-      </View>
-    </Animated.View>
+        {/* Pelaajan nimi animaationa */}
+      <Animated.View style={[styles.animatedContainer, animatedStyle]}>
+          <View style={styles.animatedText}>
+              {/* Nimi */}
+              <Text style={styles.animatedText}>
+                  {gameState.players[gameState.currentPlayerIndex]?.username} VUORO!
+              </Text>
+              {/* Treffit */}
+              <Text style={styles.animatedText}>
+                  {(() => {
+                      const acceptedTraitsLength = gameState.players[gameState.currentPlayerIndex]?.acceptedTraits?.length || 0;
+                      const currentTraitsLength = gameState.players[gameState.currentPlayerIndex]?.currentTraits?.length || 0;
+
+                      // Jos acceptedTraits on tyhjä, kyseessä on ensimmäiset treffit
+                      if (acceptedTraitsLength === 0) {
+                          return "1. treffit";
+                      }
+
+                      // Jos acceptedTraits ja currentTraits sisältävät eri piirteet, kyseessä on toiset treffit
+                      if (acceptedTraitsLength === 1 && currentTraitsLength === 1) {
+                          return "2. treffit";
+                      }
+
+                      // Muuten treffien määrä on acceptedTraits.length + 1
+                      return `${acceptedTraitsLength + 1}. treffit`;
+                  })()}
+              </Text>
+              {/* Drink up! */}
+              {(() => {
+                  const acceptedTraitsLength = gameState.players[gameState.currentPlayerIndex]?.acceptedTraits?.length || 0;
+                  const currentTraitsLength = gameState.players[gameState.currentPlayerIndex]?.currentTraits?.length || 0;
+
+                  // Määritellään, monennetko treffit ovat kyseessä
+                  const treffitMäärä = acceptedTraitsLength === 0 ? 1 : 
+                                      (acceptedTraitsLength === 1 && currentTraitsLength === 1) ? 2 : 
+                                      acceptedTraitsLength + 1;
+
+                  // Drink up! näytetään vain 1., 3., 5. ja 6. treffeillä
+                  if ([1, 3, 5, 6].includes(treffitMäärä)) {
+                      return <Text style={styles.drinkUpText}>Drink up!</Text>;
+                  }
+                  return null;
+              })()}
+          </View>
+      </Animated.View>
 
     {/* Animaatio "Yes"-napille */}
     <Animated.View style={[styles.animationContainer, yesAnimatedStyle]}>
