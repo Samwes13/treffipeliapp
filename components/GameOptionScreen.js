@@ -69,10 +69,16 @@ export default function GameOptionsScreen({ route, navigation }) {
       </Modal>
 
       <View >
-        <TouchableOpacity style={styles.button} onPress={createGame}>
+        <TouchableOpacity style={styles.button} onPress={createGame}
+        accessibilityRole="button"
+        accessibilityLabel="Create Game"
+        >
           <Text style={styles.buttonText}>Create Game</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('JoinGame', { username })}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('JoinGame', { username })}
+          accessibilityRole="button"
+          accessibilityLabel="Join Game"
+          >
           <Text style={styles.buttonText}>Join Game</Text>
         </TouchableOpacity>
       </View>

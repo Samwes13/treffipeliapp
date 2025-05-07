@@ -54,8 +54,13 @@ export default function EnterUsername({ navigation }) {
         onChangeText={handleInputChange}
         placeholderTextColor="#aaa" // Lisää placeholderin väri
       />
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Enter</Text>
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={handleSubmit}
+        accessibilityRole="button"
+        accessibilityLabel="Enter"
+      >
+          <Text style={styles.buttonText}>Enter</Text>
       </TouchableOpacity>
     </View>
   );

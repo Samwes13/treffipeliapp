@@ -75,7 +75,10 @@ export default function CardTraits({ route, navigation }) {
       ))}
 
       <TouchableOpacity style={styles.button} onPress={saveTraits}>
-        <Text style={styles.buttonText}>Submit</Text>
+        <Text style={styles.buttonText}
+          accessibilityRole="button"
+          accessibilityLabel="Submit"  
+        >Submit</Text>
       </TouchableOpacity>
     </View>
   );
