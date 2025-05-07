@@ -29,7 +29,15 @@
     "react-native-webview": "^13.13.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "@playwright/test": "^1.51.1"
   },
-  "private": true
+  "private": true,
+  "description": "- **React Native**: Sovelluksen käyttöliittymän rakentamiseen.\r - **Expo**: Sovelluskehityksen nopeuttamiseen ja helppoon testaukseen eri laitteilla.\r - **React Navigation**: Sovelluksen sisäisen navigoinnin hallintaan (esim. siirtymät eri näyttöjen välillä).",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
